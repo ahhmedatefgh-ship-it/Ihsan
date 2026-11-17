@@ -668,7 +668,7 @@ html[dir="ltr"] .msg{transform-origin:0 100%} html[dir="ltr"] .msg.user{transfor
 
 /* ---------- lamp polish (17 Nov) ---------- */
 /* the night runs under the iPhone status bar and the browser toolbar too */
-html{background:linear-gradient(180deg,#041A17 0%,#05201C 40%,#08302B 100%) fixed;background-color:#05201C}
+html{background:#041A17}  /* same as the page's top edge and the composer dock, so the status bar and toolbar blend in */
 body{background:transparent}
 /* sides: the visitor on the right, Nasser's replies on the left */
 .thread>.msg.user{align-self:flex-start;text-align:start;max-width:min(400px,85%);padding:8px 14px 10px;border-radius:16px;border-start-start-radius:6px;
@@ -701,6 +701,40 @@ html[dir="ltr"] .thread>.msg:not(.user):not(.first):not(.prod){transform-origin:
   .product .wa-fab{width:28px;height:28px;top:6px;inset-inline-start:6px}
   .product .wa-fab svg{width:15px;height:15px}
   .thread>.msg.user,.thread>.msg:not(.user):not(.first):not(.prod){max-width:88%}
+}
+
+/* with the lamp gone, its light fades in softly from above instead of starting on a hard edge */
+.cone{-webkit-mask:linear-gradient(transparent 0,#000 22%,#000 32%,transparent 92%)!important;mask:linear-gradient(transparent 0,#000 22%,#000 32%,transparent 92%)!important}
+@media (max-width:899px), (orientation:portrait) and (max-width:1100px){
+  /* let Nasser's warm halo fade out on its own instead of being cut at the top of his box */
+  .avatar{overflow:visible!important}
+}
+@media (max-width:899px), (orientation:portrait) and (max-width:1100px){
+  /* the warm glow sits lower so the very top of the page stays the same dark as the status bar */
+  .night{background:
+    radial-gradient(42% 46% at 50% 30%, rgba(255,217,138,.2), rgba(255,217,138,0) 70%),
+    radial-gradient(70% 55% at 50% 110%, #0E3B35 0%, rgba(14,59,53,0) 70%),
+    linear-gradient(#041A17, #041A17 6%, var(--night) 40%, #072723 80%, #041A17)!important}
+}
+
+/* ---------- laptop only (17 Nov): bigger Nasser, lower lamps, voice as a slim lantern rail ---------- */
+@media (min-width:900px) and (orientation:landscape), (min-width:1101px){
+  .avatar{width:min(48vw, calc((100dvh - 80px) * .78))!important}
+  .nasser,.nasser-video{height:94%!important}
+  .qcol{padding-top:clamp(48px,8vh,96px)}
+  .voicebar.rail{position:fixed;z-index:20;margin:0!important;display:flex!important;flex-direction:column;align-items:center;gap:10px;padding:10px 8px;border-radius:999px;transform:translate(-50%,-50%);
+    background:linear-gradient(180deg,rgba(242,196,107,.10),rgba(242,196,107,.02)),rgba(5,32,28,.82);border:1px solid rgba(242,196,107,.35);
+    box-shadow:0 0 0 1px rgba(0,0,0,.3),0 20px 40px -18px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,217,138,.15)}
+  .voicebar.rail::before{content:"";position:absolute;bottom:100%;left:50%;width:1.5px;height:44px;transform:translateX(-50%);background:linear-gradient(rgba(242,196,107,0),rgba(242,196,107,.55))}
+  .rail .vb-status{flex:none!important;width:40px!important;height:40px!important;padding:0!important;justify-content:center;border-radius:999px;background:transparent!important;border:0!important}
+  .rail .vb-status [data-statustext]{display:none}
+  .rail .vb-btn{width:44px;height:44px;padding:0;justify-content:center;gap:0;border-radius:999px}
+  .rail .vb-btn [data-pt],.rail .vb-btn [data-mt]{display:none}
+  .rail .vb-btn svg{width:17px;height:17px}
+  .rail .vb-btn[data-a="pause"]{background:var(--gold);color:#1A1405;border:0;box-shadow:0 0 18px rgba(255,217,138,.45)}
+  .rail .vb-btn[data-a="pause"]:disabled{background:transparent;color:rgba(246,238,220,.45);border:1px solid rgba(242,196,107,.25);box-shadow:none}
+  .rail .vb-btn[data-a="mute"]{background:transparent;color:var(--ivory);border:1px solid rgba(242,196,107,.4)}
+  .rail .vb-btn[data-a="mute"][aria-pressed="true"]{background:rgba(242,196,107,.16);border-color:var(--gold)}
 }
 </style>
 </head>
@@ -1555,6 +1589,22 @@ setBadge(false);
 const hintScan = () => { const b = $(".c-scan"); if (!b) return; b.classList.remove("hint"); void b.offsetWidth; b.classList.add("hint"); setTimeout(() => b.classList.remove("hint"), 4600); };
 setTimeout(hintScan, 1400);
 document.addEventListener("ihsan:reset", () => setTimeout(hintScan, 600));
+})();
+</script>
+<script>
+/* laptop: pause / mute hang as a slim lantern rail between the chat and Nasser */
+(() => {
+  const vb=document.querySelector(".voicebar"); if(!vb) return;
+  vb.classList.add("rail"); document.body.appendChild(vb);
+  const place=()=>{ const t=document.querySelector(".tcol"), n=document.querySelector("#avatar .nasser"); if(!t||!n) return;
+    const tr=t.getBoundingClientRect(), nr=n.getBoundingClientRect();
+    // just beside the chat, at head height where Nasser is narrowest, so it never sits on his shoulder
+    const rtlSide = tr.right < nr.right;
+    vb.style.left=Math.round(rtlSide ? tr.right + 40 : tr.left - 40)+"px"; vb.style.top=Math.round(nr.top+nr.height*0.3)+"px";
+    vb.querySelectorAll(".vb-btn").forEach(b=>{ const l=b.textContent.trim(); if(l){ b.title=l; b.setAttribute("aria-label",l); } }); };
+  addEventListener("resize",place); addEventListener("load",place); setTimeout(place,300);
+  document.querySelector("#avatar .nasser")?.addEventListener("load",place);
+  new MutationObserver(()=>setTimeout(place,0)).observe(vb,{subtree:true,childList:true,characterData:true});
 })();
 </script>
 </body>
