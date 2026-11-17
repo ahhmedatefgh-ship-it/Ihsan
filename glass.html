@@ -812,6 +812,29 @@ body{background:transparent}
   /* the soft depth now comes from a halo behind him, which a mask can't cut into a box */
   .arch::before{content:"";position:absolute;left:12%;right:12%;top:8%;bottom:6%;border-radius:50% 50% 40% 40%;background:radial-gradient(closest-side,rgba(3,30,28,.32),rgba(3,30,28,0));filter:blur(18px);pointer-events:none}
 }
+
+/* bigger pause / mute (17 Nov) */
+@media (max-width:899px) and (orientation:portrait), (max-width:899px) and (min-height:541px), (orientation:portrait) and (max-width:1100px){
+  [data-stage]>[data-voice] [data-a="pause"],[data-stage]>[data-voice] [data-a="mute"]{width:48px!important;height:48px!important}
+  [data-stage]>[data-voice] svg{width:21px!important;height:21px!important}
+  [data-stage]>[data-voice]{gap:10px!important}
+}
+@media (min-width:900px) and (orientation:landscape), (min-width:1101px), (orientation:landscape) and (max-height:540px){
+  .rail .vb-btn{width:52px!important;height:52px!important}
+  .rail .vb-btn[data-a="pause"]{width:60px!important;height:60px!important}
+  .rail .vb-btn svg{width:21px!important;height:21px!important}
+  .rail .vb-status{width:46px!important;height:46px!important}
+}
+
+/* collections: a labelled pill, word on the right, icon on the left */
+.tb.colbtn{width:auto!important;padding:0 14px 0 16px!important;gap:8px;display:inline-flex;align-items:center;border-radius:999px}
+.colbtn .cl{font-weight:700;font-size:14px;white-space:nowrap;color:#fff}
+.colbtn .ci{display:grid;place-items:center}
+.colbtn .cl.s{display:none}
+@media (max-width:380px){ .tb{width:36px!important;height:36px!important} .tb svg,.colbtn .ci svg{width:17px!important;height:17px!important} .tb.colbtn{height:36px!important;padding:0 10px!important;gap:5px} .colbtn .cl.s{font-size:13px} .tools{gap:5px!important} .brand.glass{padding:4px 9px!important;gap:6px!important} .brand .em{height:28px!important}.brand .lg{height:24px!important} }
+@media (max-width:430px){ .colbtn .cl{display:none} .colbtn .cl.s{display:inline} .tb.colbtn{padding:0 12px 0 14px!important} }
+.colbtn .ci svg{width:20px!important;height:20px!important}
+html[dir="ltr"] .tb.colbtn{padding:0 16px 0 14px!important}
 </style>
 </head>
 <body>
@@ -831,7 +854,7 @@ body{background:transparent}
       <button class="tb glass" data-a="fs" data-icon="fs"></button>
       <button class="tb glass" data-a="lang" id="langBtn">EN</button>
       <button class="tb glass" data-a="reset" data-icon="reset"></button>
-      <button class="tb glass" data-a="cart" id="cartBtn" data-icon="bookmark"><span class="badge" id="badge">0</span></button>
+      <button class="tb glass colbtn" data-a="cart" id="cartBtn"><span class="badge" id="badge">0</span><span class="cl" data-t="cart"></span><span class="cl s" data-t="colsShort"></span><span class="ci" data-icon="gallery"></span></button>
     </div>
   </header>
 
@@ -974,7 +997,7 @@ const T = {
     found:"وجدتها! هذه هي القطعة:",
     add:"احفظ في مجموعة", added:"محفوظة", more:"تفاصيل أكثر", details:"تفاصيل القطعة",
     toastAdded:"حُفظت في «{c}»", toastRemoved:"أُزيلت من «{c}»",
-    cart:"مجموعاتي", emptyCart:"لا توجد قطع محفوظة بعد. امسح رمز أي قطعة في المعرض واحفظها في مجموعة.", scanNow:"امسح رمز قطعة",
+    cart:"مجموعاتي الفنية", colsShort:"مجموعاتي", emptyCart:"لا توجد قطع محفوظة بعد. امسح رمز أي قطعة في المعرض واحفظها في مجموعة.", scanNow:"امسح رمز قطعة",
     saveTo:"احفظ في مجموعة", newCol:"مجموعة جديدة", newColPh:"اكتب اسم المجموعة", create:"إنشاء", createSave:"إنشاء وحفظ", cancel:"إلغاء", renamed:"تم تغيير الاسم إلى «{c}»", favs:"المفضلة",
     pieces:"{n} قطعة", noPieces:"المجموعة فارغة", rename:"إعادة تسمية", save:"حفظ", share:"مشاركة على واتساب",
     shareText:"أرشّح لك هذه القطعة في معرض «الإحسان: صناعة الجمال في المساجد» بدار الآثار الإسلامية، تعال وشاهدها:", shareCol:"مشاركة المجموعة على واتساب", shareColText:"مجموعتي «{c}» من معرض «الإحسان: صناعة الجمال في المساجد» بدار الآثار الإسلامية، تعال وشاهد هذه القطع في المعرض:", pieceNo:"رقم القطعة", deleteCol:"حذف المجموعة", confirmDel:"حذف", colDeleted:"حُذفت مجموعة «{c}»", noCols:"لا توجد مجموعات. أنشئ مجموعة جديدة لتحفظ فيها القطع.", toastCol:"أُنشئت مجموعة «{c}»",
@@ -1003,7 +1026,7 @@ const T = {
     found:"Found it! Here is the piece:",
     add:"Save to collection", added:"Saved", more:"More details", details:"Piece details",
     toastAdded:"Saved to “{c}”", toastRemoved:"Removed from “{c}”",
-    cart:"My collections", emptyCart:"Nothing saved yet. Scan the code of any piece in the exhibition and save it to a collection.", scanNow:"Scan a piece",
+    cart:"My art collections", colsShort:"Collections", emptyCart:"Nothing saved yet. Scan the code of any piece in the exhibition and save it to a collection.", scanNow:"Scan a piece",
     saveTo:"Save to collection", newCol:"New collection", newColPh:"Name your collection", create:"Create", createSave:"Create & save", cancel:"Cancel", renamed:"Renamed to “{c}”", favs:"Favourites",
     pieces:"{n} pieces", noPieces:"This collection is empty", rename:"Rename", save:"Save", share:"Share on WhatsApp",
     shareText:"I recommend this piece at “Ihsan: The Making of Beauty in Mosques”, Dar al-Athar al-Islamiyyah. Come and see it:", shareCol:"Share collection on WhatsApp", shareColText:"My collection “{c}” from “Ihsan: The Making of Beauty in Mosques”, Dar al-Athar al-Islamiyyah. Come and see these pieces at the exhibition:", pieceNo:"Object no.", deleteCol:"Delete collection", confirmDel:"Delete", colDeleted:"Collection “{c}” deleted", noCols:"No collections yet. Create one to save pieces into it.", toastCol:"Collection “{c}” created",
@@ -1029,6 +1052,7 @@ const ICON = {
   chev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>',
   cart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h13l-1.4 8.2a2 2 0 0 1-2 1.8H9.4a2 2 0 0 1-2-1.7L5.6 4.5A1.8 1.8 0 0 0 3.8 3H2.5"/><circle cx="10" cy="20.5" r="1.2"/><circle cx="16" cy="20.5" r="1.2"/></svg>',
   image:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="M20.5 15.5l-4.5-4.5-8.5 8.5"/></svg>',
+  gallery:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="3.5" width="13.5" height="13.5" rx="2.5"/><path d="M16.5 20.5H6a2.5 2.5 0 0 1-2.5-2.5V7.5"/><path d="M7 13.5l3.5-3.5 3 3 2-2 5 5"/><circle cx="15.5" cy="7.5" r="1.3"/></svg>',
   bookmark:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6.5 3.5h11a1 1 0 0 1 1 1V21l-6.5-4.2L5.5 21V4.5a1 1 0 0 1 1-1z"/></svg>',
   bookmarkOn:'<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6.5 3.5h11a1 1 0 0 1 1 1V21l-6.5-4.2L5.5 21V4.5a1 1 0 0 1 1-1z"/></svg>',
   wa:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2a9.9 9.9 0 0 0-8.5 15l-1.4 5 5.1-1.3A9.9 9.9 0 1 0 12.04 2zm0 18.1c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3a8.2 8.2 0 1 1 6.9 3.8zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1-.2-.1-1-.4-2-1.2-.7-.7-1.2-1.5-1.4-1.7-.1-.2 0-.4.1-.5l.4-.4.2-.4v-.4l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3c-.2.3-.9.9-.9 2.2s1 2.6 1.1 2.7c.1.2 1.9 2.9 4.6 4 .6.3 1.1.4 1.5.6.6.2 1.2.2 1.6.1.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg>',
@@ -1735,6 +1759,23 @@ setBadge(false);
 const hintScan = () => { const b = $(".c-scan"); if (!b) return; b.classList.remove("hint"); void b.offsetWidth; b.classList.add("hint"); setTimeout(() => b.classList.remove("hint"), 4600); };
 setTimeout(hintScan, 1400);
 document.addEventListener("ihsan:reset", () => setTimeout(hintScan, 600));
+})();
+</script>
+<script>
+/* phones: pause / mute sit right under the collections button */
+(() => {
+  const P = matchMedia("(max-width:899px) and (orientation:portrait), (max-width:899px) and (min-height:541px), (orientation:portrait) and (max-width:1100px)");
+  const place = () => {
+    const v = document.querySelector("[data-stage]>[data-voice]"), b = document.getElementById("cartBtn"); if (!v || !b) return;
+    if (!P.matches){ ["left","right","top","inset-inline-end","inset-inline-start"].forEach(p => v.style.removeProperty(p)); return; }
+    const st = v.parentElement.getBoundingClientRect(), br = b.getBoundingClientRect();
+    v.style.setProperty("inset-inline-end","auto","important"); v.style.setProperty("inset-inline-start","auto","important");
+    v.style.setProperty("right","auto","important");
+    v.style.setProperty("left", Math.round(br.left - st.left) + "px", "important");   // flush with the pill's left edge, an L shape
+    v.style.setProperty("top", Math.round(br.bottom - st.top + 10) + "px", "important");
+  };
+  addEventListener("resize", place); addEventListener("load", place); setTimeout(place, 300); setTimeout(place, 1200);
+  new MutationObserver(() => requestAnimationFrame(place)).observe(document.body, {attributes:true, attributeFilter:["class"]});
 })();
 </script>
 <script>
