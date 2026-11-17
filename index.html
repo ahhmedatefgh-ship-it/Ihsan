@@ -524,9 +524,9 @@ body{font-family:var(--body);color:var(--ivory);background:var(--night);overflow
   .lampq:hover .txt{color:var(--ivory)}
 }
 .lampq:active{transform:rotate(2deg)}
-.lampq[aria-current="true"] svg{filter:drop-shadow(0 0 16px rgba(255,217,138,.9)) drop-shadow(0 0 40px rgba(255,217,138,.4))}
-.lampq[aria-current="true"] svg .body{fill:var(--glow)}
-.lampq[aria-current="true"] .txt{color:var(--glow)}
+.lampq.flash svg{filter:drop-shadow(0 0 16px rgba(255,217,138,.9)) drop-shadow(0 0 40px rgba(255,217,138,.4))}
+.lampq.flash svg .body{fill:var(--glow)}
+.lampq.flash .txt{color:var(--glow)}
 .qcol{position:relative;z-index:4;display:flex;flex-direction:column;min-height:0}
 .qcol .label{font:500 15px var(--display);color:var(--gold);text-align:center;margin:18px 0 0;opacity:.85}
 .scan{
@@ -635,7 +635,7 @@ html[dir="ltr"] .msg{transform-origin:0 100%} html[dir="ltr"] .msg.user{transfor
   .lampq .chain{display:none}
   .lampq svg{width:14px;flex:none}
   .lampq .txt{margin:0;font-size:13px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
-  .lampq[aria-current="true"]{border-color:var(--gold);background:rgba(242,196,107,.12)}
+  .lampq.flash{border-color:var(--gold);background:rgba(242,196,107,.12)}
   .scan{margin:0;flex-direction:column;justify-content:center;gap:6px;padding:8px;border-radius:14px;font-size:12.5px;text-align:center;line-height:1.3}
   [dir="rtl"] .scan{padding:8px}
   .scan .ic{width:36px;height:36px}.scan .ic svg{width:19px;height:19px}
@@ -759,6 +759,10 @@ html[dir="ltr"] .thread>.msg:not(.user):not(.first):not(.prod){transform-origin:
   .rail .vb-btn[data-a="mute"]{background:transparent;color:var(--ivory);border:1px solid rgba(242,196,107,.4)}
   .rail .vb-btn[data-a="mute"][aria-pressed="true"]{background:rgba(242,196,107,.16);border-color:var(--gold)}
 }
+
+/* a chosen question lights up for a moment, then goes back to normal */
+.lampq svg,.lampq svg .body,.lampq .txt{transition:filter .9s ease,fill .9s ease,color .9s ease}
+.lampq{transition:border-color .9s ease,background-color .9s ease}
 </style>
 </head>
 <body>
@@ -1666,6 +1670,15 @@ const hintScan = () => { const b = $(".c-scan"); if (!b) return; b.classList.rem
 setTimeout(hintScan, 1400);
 document.addEventListener("ihsan:reset", () => setTimeout(hintScan, 600));
 })();
+</script>
+<script>
+document.addEventListener("click", e => {
+  const b = e.target.closest(".lampq"); if (!b) return;
+  setTimeout(() => {
+    const now = document.querySelector('.lampq[data-q="' + b.dataset.q + '"]') || b;
+    now.classList.add("flash"); setTimeout(() => now.classList.remove("flash"), 700);
+  }, 0);
+}, true);
 </script>
 <script>
 /* laptop: pause / mute hang as a slim lantern rail between the chat and Nasser */
