@@ -1180,6 +1180,12 @@ html[dir="rtl"] .i-qr-time::after{transform-origin:100% 50%}
    doubled) and dissolves away over it, so a sub-pixel difference between the two pictures reads as one soft change, not an edge jump */
 .intro.handed .i-fig{visibility:visible!important;filter:none!important;opacity:0;transition:opacity .32s cubic-bezier(.4,0,.2,1)}
 @media (prefers-reduced-motion: reduce){.intro.handed .i-fig{transition:none}}
+
+/* 3D piece in the details: photo stands in while it loads; grab cursor while turning */
+.d-3d .d-3d-poster{position:absolute;inset:8%;width:84%;height:84%;object-fit:contain;transition:opacity .35s cubic-bezier(.23,1,.32,1);pointer-events:none;z-index:0}
+.d-3d canvas{z-index:1}
+.d-3d .d-3d-hint{z-index:2}
+.d-3d.grabbing{cursor:grabbing}
 </style>
 </head>
 <body>
@@ -1306,6 +1312,7 @@ const QUESTIONS = [
 const PRODUCTS = {};
 PRODUCTS["LNS 5 G"] = {
   id:"LNS 5 G", code:"IHSAN:LNS-5-G", video:{ar:"assets/video/scan-mosque-lamp.mp4"},
+  model3d:{"kind":"lamp","side":"assets/3d/lamp-side.jpg","foot":"assets/3d/lamp-foot.jpg","inside":"assets/3d/lamp-inside.jpg","wrap":"assets/3d/lamp-wrap.jpg","poster":"assets/img/ff414bd681.png","neck":0.4571,"profile":[[0.4279,1.0],[0.4262,0.9932],[0.4229,0.9865],[0.4184,0.9775],[0.4117,0.9707],[0.4105,0.964],[0.4077,0.9572],[0.399,0.9505],[0.3986,0.9414],[0.3964,0.9347],[0.393,0.9279],[0.3896,0.9212],[0.3863,0.9144],[0.3829,0.9054],[0.3791,0.8986],[0.3761,0.8919],[0.3713,0.8851],[0.3682,0.8784],[0.366,0.8716],[0.3626,0.8626],[0.3592,0.8559],[0.357,0.8491],[0.3536,0.8423],[0.3502,0.8356],[0.3468,0.8266],[0.3435,0.8198],[0.3399,0.8131],[0.3378,0.8063],[0.3345,0.7995],[0.3311,0.7905],[0.3288,0.7838],[0.3255,0.777],[0.3221,0.7703],[0.3198,0.7635],[0.3164,0.7545],[0.3142,0.7477],[0.3108,0.741],[0.3086,0.7342],[0.3063,0.7275],[0.3017,0.7185],[0.2995,0.7117],[0.2962,0.705],[0.2939,0.6982],[0.2917,0.6914],[0.2872,0.6824],[0.286,0.6757],[0.2838,0.6689],[0.2804,0.6622],[0.2782,0.6554],[0.2748,0.6464],[0.2725,0.6396],[0.2703,0.6329],[0.268,0.6261],[0.2646,0.6194],[0.2624,0.6126],[0.259,0.6036],[0.2579,0.5968],[0.2556,0.5901],[0.2534,0.5833],[0.25,0.5766],[0.2445,0.5676],[0.2421,0.5608],[0.2387,0.5541],[0.2365,0.5473],[0.2354,0.5405],[0.2354,0.5315],[0.2376,0.5248],[0.2417,0.518],[0.2486,0.5113],[0.2584,0.5045],[0.2694,0.4955],[0.2792,0.4887],[0.288,0.482],[0.2959,0.4752],[0.3038,0.4685],[0.3113,0.4595],[0.3193,0.4527],[0.3261,0.4459],[0.3362,0.4392],[0.3505,0.4324],[0.3668,0.4234],[0.3701,0.4167],[0.3784,0.4099],[0.3806,0.4032],[0.3818,0.3964],[0.3859,0.3874],[0.3909,0.3806],[0.4007,0.3739],[0.4078,0.3671],[0.4161,0.3604],[0.42,0.3536],[0.4223,0.3446],[0.4234,0.3378],[0.4245,0.3311],[0.4257,0.3243],[0.4257,0.3176],[0.4257,0.3086],[0.4268,0.3018],[0.4279,0.295],[0.4285,0.2883],[0.4313,0.2815],[0.4336,0.2725],[0.4358,0.2658],[0.4381,0.259],[0.4392,0.2523],[0.4403,0.2455],[0.4414,0.2365],[0.4414,0.2297],[0.4403,0.223],[0.4403,0.2162],[0.4392,0.2095],[0.4352,0.2005],[0.4329,0.1937],[0.4256,0.1869],[0.4273,0.1802],[0.424,0.1734],[0.4195,0.1644],[0.4161,0.1577],[0.4111,0.1509],[0.4045,0.1441],[0.4017,0.1374],[0.3918,0.1284],[0.3874,0.1216],[0.3823,0.1149],[0.3738,0.1081],[0.3617,0.1014],[0.3566,0.0946],[0.3399,0.0856],[0.3316,0.0788],[0.3181,0.0721],[0.3049,0.0653],[0.2897,0.0586],[0.2615,0.0495],[0.2379,0.0428],[0.2141,0.036],[0.1895,0.0293],[0.1646,0.0225],[0.1373,0.0135],[0.1192,0.0068],[0.1015,0.0]],"split":117,"pitch":0.17,"yaw":0.0,"dist":2.75,"minPitch":-0.75,"maxPitch":1.0,"under":"assets/3d/lamp-under.jpg"},
   found:{ar:"وجدتها! مشكاة مسجد مملوكية من مصر، مزخرفة بالمينا والتذهيب.", en:"Found it! A Mamluk mosque lamp from Egypt, decorated with enamel and gilding."}, img:A("assets/img/ff414bd681.png"), price:100000,
   name:{ar:"مشكاة مسجد مملوكية", en:"Mamluk mosque lamp"},
   short:{ar:"زجاج منفوخ مزخرف بالمينا والتذهيب · مصر، نحو ٧١٩هـ / ١٣١٩م", en:"Blown glass with enamel and gilding · Egypt, c. 719 AH / 1319 CE"},
@@ -1323,6 +1330,7 @@ PRODUCTS["LNS 5 G"] = {
 };
 PRODUCTS["LNS 60 C"] = {
   id:"LNS 60 C", code:"IHSAN:LNS-60-C", video:{ar:"assets/video/scan-iznik-tile.mp4"},
+  model3d:{"kind":"tile","front":"assets/3d/tile-front.jpg","clay":"assets/3d/tile-clay.jpg","back":"mirror","poster":"assets/img/4931d88c70.webp","aspect":0.6086,"depth":0.024,"outline":[[0.9951,0.9985],[0.9709,1.0],[0.9684,0.9985],[0.8325,0.9985],[0.8301,0.997],[0.7524,0.997],[0.75,0.9955],[0.665,0.9955],[0.6626,0.997],[0.6602,0.9955],[0.6141,0.9955],[0.6117,0.997],[0.6092,0.9955],[0.449,0.9955],[0.4466,0.997],[0.3422,0.997],[0.3398,0.9985],[0.3325,0.997],[0.318,0.9985],[0.1214,0.997],[0.1092,0.9985],[0.1068,0.997],[0.0024,0.9955],[0.0,0.9225],[0.0024,0.921],[0.0049,0.7675],[0.0073,0.766],[0.0073,0.6647],[0.0097,0.6632],[0.0097,0.6259],[0.0121,0.6244],[0.0097,0.5335],[0.0073,0.532],[0.0097,0.5186],[0.0073,0.5112],[0.0097,0.31],[0.0073,0.3085],[0.0073,0.225],[0.0049,0.2235],[0.0073,0.003],[0.8811,0.0015],[0.8835,0.003],[0.9345,0.003],[0.9369,0.0045],[0.9903,0.006],[0.9927,0.0089],[0.9927,0.0477],[0.9951,0.0492],[0.9927,0.0686],[0.9951,0.07],[0.9951,0.1669],[0.9976,0.1684],[0.9976,0.313],[0.9951,0.3145],[0.9951,0.3472],[0.9927,0.3487],[0.9927,0.3785],[0.9879,0.4083],[0.9879,0.5976],[0.9903,0.5991],[0.9927,0.7839],[0.9951,0.7854],[0.9951,0.8435],[0.9976,0.845]],"pitch":0.08,"yaw":-0.35,"dist":2.6,"minPitch":-0.6,"maxPitch":0.6},
   found:{ar:"وجدتها! بلاطة من إزنيق تصوّر الحرم الشريف في مكة.", en:"Found it! An Iznik tile showing the Haram al-Sharif in Makkah."}, img:A("assets/img/4931d88c70.webp"),
   name:{ar:"بلاطة الحرم الشريف من إزنيق", en:"Iznik tile of the Haram al-Sharif"},
   short:{ar:"خزف إزنيق · تركيا، أواخر القرن ١١هـ / ١٧م", en:"Iznik ceramic · Turkey, late 11th century AH / 17th century CE"},
@@ -1639,20 +1647,29 @@ function renderThread(){
 }
 function pinWatch(th){
   if (th._pin) return; th._pin = true; th.dataset.pinned = "1";
-  th.addEventListener("scroll", () => { if (th._auto) return; th.dataset.pinned = (th.scrollHeight - th.scrollTop - th.clientHeight < 48) ? "1" : "0"; }, {passive:true});
-  const back = () => { th._auto = false; };
-  th.addEventListener("scrollend", back); ["wheel","touchstart","pointerdown","keydown"].forEach(e => th.addEventListener(e, back, {passive:true}));
+  const near = () => th.scrollHeight - th.scrollTop - th.clientHeight < 48;
+  // the visitor's finger always wins: while they touch or flick the answers, nothing pulls them back down,
+  // and once they let go they stay where they are unless they ended near the bottom
+  th.addEventListener("scroll", () => { if (th._auto && !th._user) return; th.dataset.pinned = near() ? "1" : "0"; }, {passive:true});
+  const down = () => { th._user = true; th._auto = false; clearTimeout(th._userT); };
+  const up = () => { clearTimeout(th._userT); th._userT = setTimeout(() => { th._user = false; th.dataset.pinned = near() ? "1" : "0"; }, 450); };
+  ["touchstart","pointerdown","wheel"].forEach(e => th.addEventListener(e, down, {passive:true}));
+  ["touchend","touchcancel","pointerup","wheel"].forEach(e => th.addEventListener(e, up, {passive:true}));
+  th.addEventListener("scrollend", () => { th._auto = false; if (th._user) up(); });
+  th.addEventListener("keydown", () => { th._auto = false; });
 }
 function scrollThreads(follow, stream){
   if (S.history.length <= 1){ $$("[data-thread]").forEach(th => { pinWatch(th); th.scrollTop = 0; }); return; }
   $$("[data-thread]").forEach(th => {
     pinWatch(th);
     if (follow === true && !stream) th.dataset.pinned = "1";     // a new message always brings the visitor down to it
+    if (th._user && !(follow === true && !stream)) return;        // never fight the finger while the answer streams
     if (th.dataset.pinned !== "1" || th.scrollHeight <= th.clientHeight + 2) return;
     const top = th.scrollHeight - th.clientHeight;
     if (Math.abs(top - th.scrollTop) < 2) return;
+    if (reduce || stream){ th.scrollTop = top; return; }            // instant follow: lands at the bottom, so it stays pinned by itself
     th._auto = true; clearTimeout(th._autoT); th._autoT = setTimeout(() => { th._auto = false; }, 700);
-    th.scrollTo({top, behavior: (reduce || stream) ? "auto" : "smooth"});
+    th.scrollTo({top, behavior: "smooth"});
   });
   // the page itself never scrolls: only the answer box does
   if (window.scrollY || document.documentElement.scrollTop) window.scrollTo(0,0);
@@ -1909,7 +1926,19 @@ function stopListening(){ if (rec){ try{ rec.stop(); }catch(e){} } if (S.listeni
 function micDemo(){
   micTimer = setTimeout(() => { S.listening=false; renderControls(); push({type:"plain", text:{ar:T.ar.micReply,en:T.en.micReply}}); }, 3000);
 }
-let micRetried=false;
+let micRetried=false, arLang="ar-QA";
+const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+// iPhone voice help, with the Settings names in the phone's own language (an English iPhone gets the English names)
+function siriHelp(){
+  const devAr = /^ar/i.test(navigator.language || "");
+  const ar = devAr
+    ? "لتفعيل الصوت على الآيفون: الإعدادات ← عام ← لوحة المفاتيح، وفعّل «تمكين الإملاء». ولأني أسمعك بالعربية، أضف لوحة المفاتيح العربية من «لوحات المفاتيح» ← «إضافة لوحة مفاتيح جديدة» ← العربية، ثم أعد المحاولة."
+    : "لتفعيل الصوت على الآيفون افتح \u2066Settings\u00a0→ General\u00a0→ Keyboard\u2069 وفعّل \u2066Enable Dictation\u2069. ولأني أسمعك بالعربية، أضف لوحة مفاتيح عربية من \u2066Keyboards\u00a0→ Add\u00a0New\u00a0Keyboard\u00a0→ Arabic\u2069، ثم أعد المحاولة.";
+  const en = devAr
+    ? "To use voice on iPhone: \u2067الإعدادات ← عام ← لوحة المفاتيح\u2069 and turn on \u2067«تمكين الإملاء»\u2069, then try again."
+    : "To use voice on iPhone: Settings › General › Keyboard › turn on Enable Dictation, then try again.";
+  return {ar, en};
+}
 async function micDiagnose(code){
   const say = k => push({type:"plain", text:{ar:T.ar[k],en:T.en[k]}});
   const inFrame = (() => { try{ return window.self !== window.top; }catch(e){ return true; } })();
@@ -1918,7 +1947,7 @@ async function micDiagnose(code){
     const st = await navigator.mediaDevices.getUserMedia({audio:true});
     st.getTracks().forEach(t => t.stop());
     // mic access is fine: the speech service itself was refused
-    if (code === "service-not-allowed" || micRetried){ say(/iPhone|iPad/.test(navigator.userAgent) ? "micSiri" : "micService"); return; }
+    if (code === "service-not-allowed" || code === "language-not-supported" || micRetried){ if (isIOS) push({type:"plain", text:siriHelp()}); else say("micService"); return; }
     micRetried = true; setTimeout(toggleMic, 250);          // permission just granted: try again once
   }catch(err){ say(inFrame ? "micFrame" : "micDenied"); }
 }
@@ -1927,7 +1956,7 @@ function toggleMic(){
   stopSpeaking(); S.listening = true; renderControls();
   if (!SR){ micDemo(); return; }
   rec = new SR(); recGot = false;
-  rec.lang = lang === "ar" ? "ar-QA" : "en-US";
+  rec.lang = lang === "ar" ? arLang : "en-US";
   rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
   const inp = micInput();
   rec.onresult = e => {
@@ -1940,7 +1969,9 @@ function toggleMic(){
     recGot = true; S.listening=false; renderControls();
     if (e.error === "no-speech"){ push({type:"plain", text:{ar:T.ar.micNone,en:T.en.micNone}}); return; }
     if (e.error === "aborted") return;
-    if (e.error === "not-allowed" || e.error === "service-not-allowed" || e.error === "audio-capture") micDiagnose(e.error);
+    // some phones only carry Saudi Arabic for dictation: try that once before asking the visitor to change settings
+    if ((e.error === "service-not-allowed" || e.error === "language-not-supported") && lang === "ar" && arLang === "ar-QA"){ arLang = "ar-SA"; setTimeout(toggleMic, 200); return; }
+    if (e.error === "not-allowed" || e.error === "service-not-allowed" || e.error === "audio-capture" || e.error === "language-not-supported") micDiagnose(e.error);
     else if (e.error === "network") push({type:"plain", text:{ar:T.ar.micNet,en:T.en.micNet}});
   };
   rec.onend = () => { rec = null; if (S.listening){ S.listening=false; renderControls(); } if (!recGot) push({type:"plain", text:{ar:T.ar.micNone,en:T.en.micNone}}); };
@@ -2513,5 +2544,6 @@ document.addEventListener("keydown", e => {
   sync();
 })();
 </script>
+<script src="assets/js/nasser3d.js" defer></script>
 </body>
 </html>
