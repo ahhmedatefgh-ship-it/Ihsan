@@ -23,7 +23,8 @@
     if (M.poster){ poster = document.createElement("img"); poster.className = "d-3d-poster"; poster.alt = ""; poster.src = M.poster; el.insertBefore(poster, el.firstChild); }
 
     // view: the camera orbits the piece; light stays with the viewer (from the left, like the app)
-    const view = { yaw: M.yaw || 0, pitch: M.pitch || .12, vy: 0, vp: 0, drag: false, x: 0, y: 0, last: 0, idle: 0, auto: !reduce, dist: M.dist || 2.7 };
+    const D0 = M.dist || 3.1, minD = D0 * .55, maxD = D0 * 1.45;   // zoom range: in to about twice the size, out a little
+    const view = { yaw: M.yaw || 0, pitch: M.pitch || .12, vy: 0, vp: 0, drag: false, x: 0, y: 0, last: 0, idle: 0, auto: !reduce, dist: D0, distT: D0 };
 
     loadThree().then(THREE => { if (alive) build(THREE); }).catch(() => {});
 
@@ -125,14 +126,34 @@
 
       // drag to turn (sideways) and tilt (up and down); a flick keeps turning and settles
       const c = renderer.domElement; c.style.touchAction = "none";
-      on(c, "pointerdown", e => { view.drag = true; view.auto = false; view.x = e.clientX; view.y = e.clientY; view.vy = view.vp = 0; view.last = performance.now(); try{ c.setPointerCapture(e.pointerId); }catch(err){} el.classList.add("grabbing"); });
-      on(c, "pointermove", e => { if (!view.drag) return;
+      // one finger / the mouse turns and tilts; two fingers pinch to zoom; the wheel (or a trackpad pinch) zooms too
+      const pts = new Map(); let pinch = null;
+      const spread = () => { const [a, b] = [...pts.values()]; return Math.hypot(a.x - b.x, a.y - b.y) || 1; };
+      const stopAuto = () => { view.auto = false; view.idle = performance.now(); };
+      on(c, "pointerdown", e => {
+        pts.set(e.pointerId, { x: e.clientX, y: e.clientY }); try{ c.setPointerCapture(e.pointerId); }catch(err){}
+        stopAuto(); view.vy = view.vp = 0;
+        if (pts.size === 2){ pinch = { d0: spread(), dist0: view.distT }; view.drag = false; el.classList.remove("grabbing"); return; }
+        if (pts.size === 1){ view.drag = true; view.x = e.clientX; view.y = e.clientY; el.classList.add("grabbing"); }
+      });
+      on(c, "pointermove", e => {
+        if (!pts.has(e.pointerId)) return;
+        pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (pinch && pts.size >= 2){ view.distT = clamp(pinch.dist0 * pinch.d0 / spread(), minD, maxD); return; }
+        if (!view.drag) return;
         const dx = e.clientX - view.x, dy = e.clientY - view.y; view.x = e.clientX; view.y = e.clientY;
         const k = 3.2 / Math.max(240, el.clientWidth);
         view.yaw -= dx * k; view.pitch = clamp(view.pitch + dy * k * .8, M.minPitch ?? -.45, M.maxPitch ?? .95);
-        view.vy = clamp(-dx * k, -.06, .06); view.vp = clamp(dy * k * .8, -.03, .03); });
-      const up = () => { if (!view.drag) return; view.drag = false; view.idle = performance.now(); el.classList.remove("grabbing"); };
+        view.vy = clamp(-dx * k, -.06, .06); view.vp = clamp(dy * k * .8, -.03, .03);
+      });
+      const up = e => {
+        pts.delete(e.pointerId);
+        if (pts.size < 2) pinch = null;
+        if (pts.size === 1){ const p = [...pts.values()][0]; view.drag = true; view.x = p.x; view.y = p.y; view.vy = view.vp = 0; return; }   // back to turning with the finger that stayed
+        if (pts.size === 0){ view.drag = false; view.idle = performance.now(); el.classList.remove("grabbing"); }
+      };
       on(c, "pointerup", up); on(c, "pointercancel", up); on(c, "lostpointercapture", up);
+      on(c, "wheel", e => { e.preventDefault(); stopAuto(); view.distT = clamp(view.distT * Math.exp(e.deltaY * (e.ctrlKey ? .01 : .0015)), minD, maxD); }, { passive: false });
 
       let t0 = performance.now();
       const tick = now => {
@@ -144,6 +165,7 @@
           if (!reduce && !view.auto && view.idle && now - view.idle > 6000) view.auto = true;     // back to a slow turn after a pause
           if (view.auto) view.yaw += .0035 * dt;
         }
+        view.dist += (view.distT - view.dist) * Math.min(1, .25 * dt);   // zoom eases to where the fingers asked
         const cp = Math.cos(view.pitch);
         cam.position.set(Math.sin(view.yaw) * cp * view.dist, Math.sin(view.pitch) * view.dist, Math.cos(view.yaw) * cp * view.dist);
         cam.lookAt(0, M.lookY || 0, 0);
