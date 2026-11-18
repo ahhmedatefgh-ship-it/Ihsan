@@ -2530,7 +2530,11 @@ if (introOn){
         if (!reduce){
           const ease = "cubic-bezier(.23,1,.32,1)";
           [[".top",0,-14],[".talk",-26,0],[".stage .qs",0,18],[".voicebar",0,0]].forEach(([sel,x,y],i) => { const el = $(sel); if (el)
-            el.animate([{opacity:0, translate:`${x}px ${y}px`},{opacity:1, translate:"0 0"}], {duration:1000, delay:150 + i*160, easing:ease, fill:"backwards"}); });
+            {
+            // rise in from wherever the element really stands (the cards sit shifted toward the chat with Nasser), so the
+            // entrance ends exactly in place instead of landing at the unshifted spot and jumping over afterwards
+            const t0 = getComputedStyle(el).translate, [bx, by] = (t0 && t0 !== "none" ? t0.split(" ") : []).concat(["0px", "0px"]);
+            el.animate([{opacity:0, translate:`calc(${bx} + ${x}px) calc(${by} + ${y}px)`},{opacity:1, translate:`${bx} ${by}`}], {duration:1000, delay:150 + i*160, easing:ease, fill:"backwards"}); } });
           $$(".stage .qs > li").forEach((li,i) => li.animate([{opacity:0, translate:"0 14px"},{opacity:1, translate:"0 0"}], {duration:800, delay:500 + i*90, easing:ease, fill:"backwards"}));
         }
         setTimeout(() => { ov.remove(); document.documentElement.classList.remove("intro-on","intro-reveal","intro-handed"); }, reduce ? 0 : 1600);
