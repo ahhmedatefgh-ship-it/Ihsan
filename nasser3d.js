@@ -10,6 +10,16 @@
     const s = document.createElement("script"); s.src = base + "three.min.js"; s.async = true;
     s.onload = () => window.THREE ? res(window.THREE) : rej(new Error("three")); s.onerror = rej; document.head.appendChild(s);
   }));
+  // pictures are fetched and decoded once and kept, so a piece opened after preload() appears at once
+  const imgs = new Map();
+  const getImg = url => {
+    if (!imgs.has(url)) imgs.set(url, new Promise((res, rej) => {
+      const i = new Image(); i.onload = () => (i.decode ? i.decode().catch(() => {}) : Promise.resolve()).then(() => res(i)); i.onerror = rej; i.src = url;
+    }));
+    return imgs.get(url);
+  };
+  const urlsOf = M => [M.side, M.under, M.foot, M.inside, M.front, M.clay].filter(Boolean);
+  function preload(M){ if (!M) return; loadThree().catch(() => {}); urlsOf(M).forEach(u => getImg(u).catch(() => {})); }
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
@@ -18,9 +28,9 @@
     const off = [];
     const on = (t, ev, fn, o) => { t.addEventListener(ev, fn, o); off.push(() => t.removeEventListener(ev, fn, o)); };
 
-    // the photo stands in while the model loads, then fades out under it
-    let poster = null;
-    if (M.poster){ poster = document.createElement("img"); poster.className = "d-3d-poster"; poster.alt = ""; poster.src = M.poster; el.insertBefore(poster, el.firstChild); }
+    // no photo first: the model itself appears (it is usually preloaded); a quiet ring shows only if it is not ready yet
+    preload(M);
+    const waitT = setTimeout(() => { if (alive && !firstFrame) el.classList.add("is-loading"); }, 250);
 
     // view: the camera orbits the piece; light stays with the viewer (from the left, like the app)
     const D0 = M.dist || 3.1, minD = D0 * .55, maxD = D0 * 1.45;   // zoom range: in to about twice the size, out a little
@@ -34,6 +44,7 @@
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2)); renderer.setSize(w, h, false);
       renderer.outputEncoding = THREE.sRGBEncoding;
       renderer.domElement.setAttribute("aria-hidden", "true");
+      renderer.domElement.style.opacity = "0"; renderer.domElement.style.transition = "opacity .3s cubic-bezier(.23,1,.32,1)";
       el.insertBefore(renderer.domElement, el.firstChild);
       scene = new THREE.Scene();
       cam = new THREE.PerspectiveCamera(26, w / h, .05, 50); scene.add(cam);
@@ -41,9 +52,9 @@
       const key = new THREE.DirectionalLight(0xfff3e4, .6); key.position.set(-3.5, 3, 4); cam.add(key);
       const rim = new THREE.DirectionalLight(0xdff3ef, .22); rim.position.set(3, 1.5, -2); cam.add(rim);
 
-      const tl = new THREE.TextureLoader();
       const tex = (url, repeat) => { pending++;
-        const t = tl.load(url, () => { pending--; }, undefined, () => { pending--; });
+        const t = new THREE.Texture();
+        getImg(url).then(img => { t.image = img; t.needsUpdate = true; pending--; }).catch(() => { pending--; });
         t.encoding = THREE.sRGBEncoding; t.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
         if (repeat) t.wrapS = THREE.RepeatWrapping; return t; };
 
@@ -170,7 +181,7 @@
         cam.position.set(Math.sin(view.yaw) * cp * view.dist, Math.sin(view.pitch) * view.dist, Math.cos(view.yaw) * cp * view.dist);
         cam.lookAt(0, M.lookY || 0, 0);
         if (!document.hidden) renderer.render(scene, cam);
-        if (!firstFrame && pending === 0){ firstFrame = true; if (poster){ poster.style.opacity = "0"; setTimeout(() => poster && poster.remove(), 400); } }
+        if (!firstFrame && pending === 0){ firstFrame = true; clearTimeout(waitT); el.classList.remove("is-loading"); renderer.domElement.style.opacity = "1"; }
         raf = requestAnimationFrame(tick);
       };
       raf = requestAnimationFrame(tick);
@@ -181,8 +192,8 @@
       if (scene) scene.traverse(o => { if (o.geometry) o.geometry.dispose(); const ms = o.material ? [].concat(o.material) : [];
         ms.forEach(m => { if (m.map) m.map.dispose(); m.dispose(); }); });
       if (renderer){ renderer.dispose(); try{ renderer.forceContextLoss(); }catch(e){} renderer.domElement.remove(); }
-      if (poster) poster.remove();
+      clearTimeout(waitT); el.classList.remove("is-loading");
     } };
   }
-  window.Lamp3D = { mount };
+  window.Lamp3D = { mount, preload };
 })();
