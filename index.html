@@ -1203,6 +1203,11 @@ html[dir="rtl"] .i-qr-time::after{transform-origin:100% 50%}
 html[dir=ltr] .pc .inf .wa-fab{float:right;margin:1px 10px 6px 0}
 .pc .inf h4{padding-left:0!important;padding-right:0!important}
 .pc .inf .acts{clear:both}
+
+/* while a clip plays, the canvas draws Nasser's shadow itself: the box's CSS shadow eases out so it is never doubled,
+   and eases back in as he returns to the still */
+#avatar{transition:filter .3s ease}
+#avatar.nv-stacked.nv-on:not(.nv-out){filter:drop-shadow(16px 10px 18px rgba(3,30,28,0)) drop-shadow(4px 4px 6px rgba(3,30,28,0))}
 </style>
 </head>
 <body>
@@ -1771,13 +1776,26 @@ const clipOn = () => video && video.classList.contains("live");
    The canvas sits exactly over the still portrait; each clip starts from the same pose as the still and
    morphs in and out of it, so the change is never seen. */
 /* draw a "stacked alpha" clip (colour on top, cut-out underneath) onto a canvas with WebGL */
-function alphaGL(cv){
+function alphaGL(cv, withShadow){
   const gl = cv.getContext("webgl", {premultipliedAlpha:true, alpha:true, antialias:false});
   if (!gl) return null;
   const sh = (type, src) => { const o = gl.createShader(type); gl.shaderSource(o, src); gl.compileShader(o); return o; };
   const pr = gl.createProgram();
   gl.attachShader(pr, sh(gl.VERTEX_SHADER, "attribute vec2 p;varying vec2 v;void main(){v=vec2((p.x+1.)*.5,(1.-p.y)*.5);gl_Position=vec4(p,0.,1.);}"));
-  gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, "precision mediump float;varying vec2 v;uniform sampler2D t;uniform float h;uniform vec2 s;vec3 sh(float x){x=clamp((x-s.x)/s.y,0.,1.);vec3 a=vec3(1.),b=vec3(.8275,.8706,.8627),d=vec3(.6549,.7294,.7176);if(x<.56)return a;if(x<.8)return mix(a,b,(x-.56)/.24);return mix(b,d,(x-.8)/.2);}void main(){vec3 c=texture2D(t,vec2(v.x,v.y*h)).rgb*sh(v.x);float a=texture2D(t,vec2(v.x,v.y*h+.5)).r;gl_FragColor=vec4(c*a,a);}"));
+  // the clip's own cast shadow is drawn here too (same two shadows as the still's CSS drop-shadow): iPhone Safari does not
+  // apply a CSS drop-shadow to a live WebGL canvas, so without this he lost his shadow whenever he spoke
+  gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, [
+    "precision mediump float;varying vec2 v;uniform sampler2D t;uniform float h;uniform vec2 s;uniform float sw;uniform vec2 o1;uniform vec2 o2;uniform vec2 r1;uniform vec2 r2;",
+    "vec3 sh(float x){x=clamp((x-s.x)/s.y,0.,1.);vec3 a=vec3(1.),b=vec3(.8275,.8706,.8627),d=vec3(.6549,.7294,.7176);if(x<.56)return a;if(x<.8)return mix(a,b,(x-.56)/.24);return mix(b,d,(x-.8)/.2);}",
+    "float al(vec2 q){q=clamp(q,vec2(0.),vec2(1.));return texture2D(t,vec2(q.x,q.y*h+.5)).r;}",
+    "float blur(vec2 q,vec2 r){float acc=al(q)*.16;",
+    " acc+=(al(q+vec2(r.x,0.))+al(q-vec2(r.x,0.))+al(q+vec2(0.,r.y))+al(q-vec2(0.,r.y)))*.09;",
+    " acc+=(al(q+r*.7)+al(q-r*.7)+al(q+vec2(r.x,-r.y)*.7)+al(q+vec2(-r.x,r.y)*.7))*.075;",
+    " acc+=(al(q+vec2(r.x*1.6,0.))+al(q-vec2(r.x*1.6,0.))+al(q+vec2(0.,r.y*1.6))+al(q-vec2(0.,r.y*1.6)))*.045;",
+    " return acc/(.16+.36+.3+.18);}",
+    "void main(){vec3 c=texture2D(t,vec2(v.x,v.y*h)).rgb*sh(v.x);float a=texture2D(t,vec2(v.x,v.y*h+.5)).r;",
+    " float sa=0.;if(sw>.5){float s1=blur(v-o1,r1)*.38;float s2=blur(v-o2,r2)*.25;sa=1.-(1.-s1)*(1.-s2);}",
+    " vec3 sc=vec3(.012,.118,.11);gl_FragColor=vec4(c*a+sc*sa*(1.-a),a+sa*(1.-a));}"].join("")));
   gl.linkProgram(pr); gl.useProgram(pr);
   const b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
@@ -1785,10 +1803,19 @@ function alphaGL(cv){
   const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
   [gl.TEXTURE_WRAP_S, gl.TEXTURE_WRAP_T].forEach(k => gl.texParameteri(gl.TEXTURE_2D, k, gl.CLAMP_TO_EDGE));
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-  const uh = gl.getUniformLocation(pr, "h"), us = gl.getUniformLocation(pr, "s");
+  const U = n => gl.getUniformLocation(pr, n);
+  const uh = U("h"), us = U("s"), usw = U("sw"), uo1 = U("o1"), uo2 = U("o2"), ur1 = U("r1"), ur2 = U("r2");
   return video => { gl.viewport(0, 0, cv.width, cv.height); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video);
     gl.uniform1f(uh, cv.height / (video.videoHeight || cv.height * 2 + 2));
-    const k = Math.min(1, (900 / 953) * cv.height / cv.width); gl.uniform2f(us, (1 - k) / 2, k);   /* light from the left, mapped to the still's box */ gl.clearColor(0,0,0,0); gl.clear(gl.COLOR_BUFFER_BIT); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); };
+    const k = Math.min(1, (900 / 953) * cv.height / cv.width); gl.uniform2f(us, (1 - k) / 2, k);   /* light from the left, mapped to the still's box */
+    gl.uniform1f(usw, withShadow ? 1 : 0);
+    if (withShadow){
+      // the CSS shadows are in CSS pixels: convert to this canvas's 0..1 space using its size on screen
+      const W = Math.max(1, cv.clientWidth), H = Math.max(1, cv.clientHeight);
+      gl.uniform2f(uo1, 16 / W, 10 / H); gl.uniform2f(ur1, 9 / W, 9 / H);    // drop-shadow(16px 10px 18px)
+      gl.uniform2f(uo2, 4 / W, 4 / H);   gl.uniform2f(ur2, 3 / W, 3 / H);    // drop-shadow(4px 4px 6px)
+    }
+    gl.clearColor(0,0,0,0); gl.clear(gl.COLOR_BUFFER_BIT); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); };
 }
 /* A clip can be wider than the still (room for open hands): the canvas keeps the still's height and grows sideways
    around its centre, so Nasser stays the same size and in the same place. The light-from-the-left shading is
@@ -1823,7 +1850,7 @@ const NV = (() => {
   const av = $("#avatar"); if (!video || !av) return null;
   const cv = document.createElement("canvas"); cv.className = "nasser-canvas"; cv.width = 900; cv.height = 953; cv.setAttribute("aria-hidden","true");
   video.insertAdjacentElement("afterend", cv);
-  const paint = alphaGL(cv); if (!paint) return null;
+  const paint = alphaGL(cv, true); if (!paint) return null;
 
   let raf = 0, shown = false, out = 0;
   const stacked = () => video.videoHeight > video.videoWidth * 1.6;
