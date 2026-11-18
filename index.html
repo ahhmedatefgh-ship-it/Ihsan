@@ -1223,12 +1223,20 @@ html[dir=ltr] .pc .inf .wa-fab{float:right;margin:1px 10px 6px 0}
 @keyframes spin3d{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion: reduce){ .d-3d.is-loading::before{animation-duration:2.4s} }
 
-/* landscape: Nasser and his question cards stand a little toward the chat (the opening's Nasser too, so the hand-over
-   lands in the same spot); the QR and the pause / mute rail sit in the space on his other side */
+/* landscape: Nasser and his question cards stand a little toward the chat; the QR and the pause / mute rail sit in the space on his other side */
 @media (min-width:900px) and (orientation:landscape), (min-width:1101px), (orientation:landscape) and (max-height:540px){
-  .arch, .stage .qs, .intro .i-nasser{translate:var(--nx,0px) 0}
+  .arch, .stage .qs{translate:var(--nx,0px) 0}   /* the opening starts with him centred; its glide lands him on this new spot */
   .stage .qs{max-width:var(--qsw,none);justify-self:center;margin-inline:auto}
 }
+
+/* phone opening: same ground as the laptop's (app background + drifting star lattice), logo stacked, "touch to begin" */
+.ph-intro{cursor:pointer;transition:opacity .6s cubic-bezier(.4,0,.2,1)!important;-webkit-tap-highlight-color:transparent}
+.ph-intro .ph-field{position:absolute!important;inset:0!important;z-index:-1!important}
+.ph-intro .i-logo{flex-direction:column;align-items:center;gap:16px;text-align:center;padding:0 24px}
+.ph-intro .i-logo .i-em{height:min(19vh,150px);width:auto}
+.ph-intro .i-logo .i-lg{height:min(10vh,82px);width:auto;max-width:78vw;object-fit:contain}
+.ph-intro .i-tap{margin:30px 0 0}
+.ph-intro.gone{opacity:0;pointer-events:none}
 </style>
 </head>
 <body>
@@ -2426,6 +2434,26 @@ var introOn = !!C.intro && matchMedia("(orientation:landscape)").matches && !/[?
   let done = false;
   if (typeof introOn !== "undefined" && introOn) return;
   const go = () => { if (done || S.speaking || S.history.length > 1) return; done = true; if (playClip(CLIPS.welcome)){ S.speaking = {msg:null, timer:null}; renderControls(); } };
+  // phone (portrait): the same opening ground as the laptop (background, drifting star lattice, Ihsan logo) waits for a touch,
+  // so Nasser's welcome starts with his voice
+  if (video && CLIPS.welcome[lang] && !/[?&]nointro/.test(location.search)){
+    const W = CLIPS.welcome[lang];
+    fetch(W).then(r => r.blob()).then(b => { if (!BLOBS.has(W)) BLOBS.set(W, URL.createObjectURL(b)); }).catch(() => {});
+    const em = $(".brand .em"), lg = $("[data-logo]"), field = $(".field");
+    const ov = document.createElement("div"); ov.className = "intro ph-intro"; ov.setAttribute("role", "button"); ov.tabIndex = 0;
+    ov.setAttribute("aria-label", lang === "ar" ? "المس للبدء" : "Touch to begin");
+    ov.innerHTML = `<div class="i-logo">${em ? `<img class="i-em" src="${em.getAttribute("src")}" alt="">` : ""}<img class="i-lg" src="${lg ? lg.getAttribute("src") : A("7768f0d374.png")}" alt="الإحسان"><p class="i-tap">${lang === "ar" ? "المس للبدء" : "Touch to begin"}</p></div>`;
+    if (field) ov.prepend(Object.assign(field.cloneNode(true), {className: field.className + " ph-field"}));
+    document.body.appendChild(ov);
+    let started = false;
+    const start = () => {
+      if (started) return; started = true;
+      go();                                                     // inside the touch: the browser lets him speak
+      ov.classList.add("gone"); setTimeout(() => ov.remove(), 700);
+    };
+    ov.addEventListener("click", start); ov.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); start(); } });
+    return;
+  }
   if (video && CLIPS.welcome[lang]){
     video.muted = S.muted; video.src = encodeURI(A(CLIPS.welcome[lang]));
     video.play().then(() => { done = true; S.speaking = {msg:null, timer:null}; renderControls(); }).catch(() => {
