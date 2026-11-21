@@ -451,7 +451,9 @@ html body, html body *:not(svg):not(path){font-family:"Tajawal",system-ui,-apple
 .viewfinder .idle svg{margin:0!important}
 .demo-link{align-self:center;border:0;background:none;color:var(--sheet-muted);font:inherit;font-size:13.5px;text-decoration:underline;text-underline-offset:4px;padding:6px 10px;min-height:36px}
 /* line-by-line answers */
-[data-ansbody].lines{display:block;overflow:hidden;
+[data-ansbody].lines{display:block;overflow:hidden}
+/* the soft fade only while the bubble is still opening onto a new line; once the last line is in, it is fully clear */
+[data-ansbody].lines.lines-tail{
   -webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 1.6em),transparent);mask-image:linear-gradient(180deg,#000 calc(100% - 1.6em),transparent)}
 @media (prefers-reduced-motion: reduce){[data-ansbody].lines{transition:none}}
 
@@ -471,6 +473,9 @@ html.intro-on:not(.intro-reveal) .arch::before{opacity:0}
 html.intro-reveal body>*,html.intro-reveal .page>*,html.intro-reveal .stage>*,html.intro-reveal .archrow>*,html.intro-reveal .arch>*:not(#avatar),html.intro-reveal .arch::before{transition:opacity .8s cubic-bezier(.4,0,.2,1)}
 
 html.intro-on:not(.intro-handed) #avatar .nasser{opacity:0} html:not(.intro-on) #avatar .nasser{transition:opacity .3s ease}
+/* the app's Zaid is now drawn on the canvas: keep it hidden under the opening too, and let it appear in one frame at the hand-over */
+html.intro-on:not(.intro-handed) #avatar .nasser-canvas{opacity:0!important;visibility:hidden!important}
+html.intro-on #avatar .nasser-canvas{transition:none!important}
 .intro.out{background:transparent!important;pointer-events:none;transition:background-color 1.3s ease}
 .i-logo{grid-area:1/1;display:flex;align-items:center;gap:28px;animation:iLogo 1.4s cubic-bezier(.23,1,.32,1) both;transition:opacity .7s ease, transform .9s cubic-bezier(.4,0,.2,1)}
 .i-logo .i-em{height:min(22vh,190px)}
@@ -1120,6 +1125,11 @@ html[dir="ltr"] .sheet .x.back svg{transform:scaleX(-1)}
 @media (hover:hover) and (pointer:fine){.sheet .x.back:hover{background:rgba(255,255,255,.2)}}
 
 /* opening QR: time left before the app comes in */
+.i-qr-count{display:flex;align-items:center;gap:10px;width:84%;margin:12px auto 0}
+.i-qr-count .i-qr-time{flex:1;margin:0!important;width:auto!important}
+.i-qr-num{min-width:1.6em;text-align:center;font:800 15px/1 "Tajawal",sans-serif;color:#0F3B37;font-variant-numeric:tabular-nums}
+.i-qr-num.tick{animation:qrTick .5s cubic-bezier(.23,1,.32,1)}
+@keyframes qrTick{from{opacity:.25;transform:scale(.7)}to{opacity:1;transform:none}}
 .i-qr-time{display:block;height:3px;margin:12px auto 0;width:72%;border-radius:99px;background:rgba(15,59,55,.14);overflow:hidden;position:relative}
 .i-qr-time::after{content:"";position:absolute;inset:0;background:#0F3B37;opacity:.55;border-radius:inherit;transform-origin:0 50%}
 html[dir="rtl"] .i-qr-time::after{transform-origin:100% 50%}
@@ -1144,6 +1154,11 @@ html[dir="rtl"] .i-qr-time::after{transform-origin:100% 50%}
 
 /* opening: the logo leaves quickly and Zaid arrives on the clip's own first frame, already moving into his first word */
 .intro .i-logo{transition:opacity .45s cubic-bezier(.23,1,.32,1),transform .6s cubic-bezier(.23,1,.32,1)}
+/* opening countdown: the logo grows slowly while 3-2-1 counts under it, then opens out and dissolves as Zaid arrives */
+.intro .i-logo{will-change:transform,opacity}
+.intro.counting:not(.play) .i-logo{transform:scale(1.06);transition:transform 1.6s cubic-bezier(.45,0,.25,1)}
+.intro.play .i-logo{opacity:0!important;transform:scale(1.22)!important;filter:blur(6px);
+  transition:opacity .55s cubic-bezier(.4,0,.2,1),transform .7s cubic-bezier(.23,1,.32,1),filter .55s cubic-bezier(.4,0,.2,1)!important}
 .intro .i-stage{will-change:opacity,transform;transform:translateY(14px);transition:opacity .6s cubic-bezier(.23,1,.32,1) .2s,transform .7s cubic-bezier(.23,1,.32,1) .2s}
 .intro.play .i-stage{transform:none}
 @media (prefers-reduced-motion: reduce){.intro .i-stage{transform:none;transition:opacity .3s ease}}
@@ -1232,13 +1247,30 @@ html[dir=ltr] .pc .inf .wa-fab{float:right;margin:1px 10px 6px 0}
 }
 
 /* phone opening: same ground as the laptop's (app background + drifting star lattice), logo stacked, "touch to begin" */
-.ph-intro{cursor:pointer;transition:opacity .6s cubic-bezier(.4,0,.2,1)!important;-webkit-tap-highlight-color:transparent}
+.ph-intro{cursor:pointer;transition:opacity .35s cubic-bezier(.23,1,.32,1)!important;-webkit-tap-highlight-color:transparent}
 .ph-intro .ph-field{position:absolute!important;inset:0!important;z-index:-1!important}
 .ph-intro .i-logo{flex-direction:column;align-items:center;gap:16px;text-align:center;padding:0 24px}
 .ph-intro .i-logo .i-em{height:min(19vh,150px);width:auto}
 .ph-intro .i-logo .i-lg{height:min(10vh,82px);width:auto;max-width:78vw;object-fit:contain}
 .ph-intro .i-tap{margin:30px 0 0}
 .ph-intro.gone{opacity:0;pointer-events:none}
+/* opening (laptop): no CSS shadow on the picture; the canvas casts the same shadow as the app, with the app's side fade */
+.intro .i-fig{filter:none!important}
+html body .intro .i-nasser .i-fig .i-canvas{-webkit-mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent)!important;mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent)!important}
+/* 21 Nov: a wrapper mask clips everything outside the still's box, which cut his hands off when they reached past it.
+   The bottom fade now sits on the canvas and the still themselves, so the arms can go as far as the clip goes. */
+html body .intro.intro.intro .i-fig{-webkit-mask-image:none!important;mask-image:none!important}
+html body .intro.intro.intro.intro .i-nasser .i-fig .i-canvas{
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 2%,#000 98%,transparent),linear-gradient(180deg,#000 94%,transparent 99%)!important;
+          mask-image:linear-gradient(90deg,transparent,#000 2%,#000 98%,transparent),linear-gradient(180deg,#000 94%,transparent 99%)!important;
+  -webkit-mask-composite:source-in!important;mask-composite:intersect!important}
+html body .intro.intro.intro.intro .i-nasser .i-fig img.i-still,html body .intro.intro.intro.intro .i-nasser .i-fig video{-webkit-mask-image:linear-gradient(180deg,#000 94%,transparent 99%)!important;mask-image:linear-gradient(180deg,#000 94%,transparent 99%)!important}
+/* phone opening: under the opening the clip replaces the still in one frame (no crossfade, so no double picture) */
+#avatar.nv-instant .nasser,#avatar.nv-instant .nasser-canvas{transition:none!important}
+/* laptop opening: the clip ends on the very picture of the still, so it simply stays on screen until the hand-over
+   (no clip-to-still crossfade inside the opening) */
+.intro.stacked.ending .i-canvas,.intro.stacked.landing .i-canvas{opacity:1!important;visibility:visible!important}
+.intro.stacked.ending .i-still,.intro.stacked.landing .i-still{opacity:0!important}
 </style>
 </head>
 <body>
@@ -1764,8 +1796,9 @@ function revealLines(m){
           else { el._v = (el._v || 0) + ((target - el._h) * 0.16); el._v *= 0.62; el._h += el._v; }
           if (Math.abs(target - el._h) < .4 && Math.abs(el._v || 0) < .3){ el._h = target; el._v = 0; }
           el.style.height = el._h.toFixed(1) + "px";
+          el.classList.toggle("lines-tail", H - el._h > 2);
           scrollThreads(true, true);
-          if (mm.done && Math.abs(el._h - H) < .5 && !el._v){ el.style.height = ""; el.classList.add("lines-done"); el.classList.remove("lines"); el._loop = 0; return; }
+          if (mm.done && Math.abs(el._h - H) < .5 && Math.abs(el._v || 0) < .3){ el.style.height = ""; el.classList.add("lines-done"); el.classList.remove("lines", "lines-tail"); el._loop = 0; return; }
           el._loop = requestAnimationFrame(tick);
         };
         el._loop = requestAnimationFrame(tick);
@@ -1870,8 +1903,11 @@ function alphaGL(cv, withShadow){
   return video => {
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video);
-    const H = cv.height / (video.videoHeight || cv.height * 2 + 2), E = .75 / (video.videoHeight || cv.height * 2 + 2);
-    const W = Math.max(1, cv.clientWidth), Hc = Math.max(1, cv.clientHeight);   // CSS size: the CSS shadow is in CSS pixels
+    const VH = video.videoHeight || video.height;   // a playing clip, or the still packed like one (a canvas)
+    const H = cv.height / (VH || cv.height * 2 + 2), E = .75 / (VH || cv.height * 2 + 2);
+    // the shadow is measured in on-screen pixels (getBoundingClientRect includes transforms such as the opening's glide),
+    // so the opening's picture and the app's picture cast exactly the same shadow
+    const RB = cv.getBoundingClientRect(), W = Math.max(1, RB.width || cv.clientWidth), Hc = Math.max(1, RB.height || cv.clientHeight);
     const F = withShadow && pMatte && pBlur && pMix ? fbs() : null, shadow = F && !F.bad;
     if (shadow){
       gl.bindBuffer(gl.ARRAY_BUFFER, b);
@@ -1904,7 +1940,7 @@ function shadeFor(w){
   base.parentNode.appendChild(f); return id;
 }
 function fitClip(cv, v, tail){
-  const vw = v.videoWidth, vh = v.videoHeight; if (!vw || !vh) return;
+  const vw = v.videoWidth || v.width, vh = v.videoHeight || v.height; if (!vw || !vh) return;
   const ch = Math.round(vh / 2) - 1;                       // the colour half; the cut-out starts half way down
   if (cv.width === vw && cv.height === ch) return;
   cv.width = vw; cv.height = ch;
@@ -1924,24 +1960,61 @@ const NV = (() => {
   video.insertAdjacentElement("afterend", cv);
   const paint = alphaGL(cv, true); if (!paint) return null;
 
-  let raf = 0, shown = false, out = 0;
+  let raf = 0;
   const stacked = () => video.videoHeight > video.videoWidth * 1.6;
+  /* The still is drawn by this same canvas, packed like a clip (colour on top, cut-out below), so the still and every
+     clip share one picture, one light and one shadow. A clip begins and ends on the still's exact picture, so going
+     from clip to still (and back) is just the next frame on the same canvas: nothing to crossfade, nothing can jump. */
+  const img = $("#avatar .nasser"), still = document.createElement("canvas"); let stillReady = false;
+  const buildStill = () => {
+    if (stillReady) return true;
+    if (!img || !img.complete || !img.naturalWidth) return false;
+    try{
+      const w = 900, h = 953, tmp = document.createElement("canvas"); tmp.width = w; tmp.height = h;
+      const tc = tmp.getContext("2d"); tc.drawImage(img, 0, 0, w, h);
+      const src = tc.getImageData(0, 0, w, h).data;
+      still.width = w; still.height = 1908; const sc = still.getContext("2d"), out = sc.createImageData(w, 1908), d = out.data;
+      for (let y = 0; y < 954; y++){ const sy = Math.min(y, h - 1);
+        for (let x = 0; x < w; x++){ const s = (sy * w + x) * 4, c = (y * w + x) * 4, m = ((y + 954) * w + x) * 4, a = src[s + 3];
+          d[c] = src[s]; d[c + 1] = src[s + 1]; d[c + 2] = src[s + 2]; d[c + 3] = 255;
+          d[m] = d[m + 1] = d[m + 2] = a; d[m + 3] = 255; } }
+      sc.putImageData(out, 0, 0); stillReady = true; return true;
+    }catch(e){ return false; }
+  };
+  const showStill = () => {
+    if (!buildStill()) return false;
+    fitClip(cv, still); paint(still);
+    av.classList.add("nv-stacked", "nv-on"); av.classList.remove("nv-out");
+    return true;
+  };
   const draw = () => {
     if (video.readyState >= 2){
       fitClip(cv, video);
       paint(video);
-      if (!shown){ shown = true; av.classList.add("nv-on"); }
-      // morph back into the still just before the clip ends
-      if (video.duration && video.duration - video.currentTime < .32 && !out){ out = 1; av.classList.add("nv-out"); }
+      av.classList.add("nv-on");
     }
     if (!video.paused && !video.ended) raf = requestAnimationFrame(draw);
   };
-  video.addEventListener("playing", () => { if (priming || !stacked()) return; av.classList.add("nv-stacked"); cancelAnimationFrame(raf); raf = requestAnimationFrame(draw); });
-  video.addEventListener("seeked", () => { if (stacked() && video.paused) draw(); });
-  const hide = () => { cancelAnimationFrame(raf); av.classList.add("nv-out");
-    setTimeout(() => { if (!video.paused && !video.ended) return; av.classList.remove("nv-on","nv-out","nv-stacked"); shown = false; out = 0; }, 340); };
-  const reset = () => { out = 0; av.classList.remove("nv-out"); };
-  return { hide, reset };
+  video.addEventListener("playing", () => { if (priming || !stacked()) return; av.classList.add("nv-stacked"); av.classList.remove("nv-out"); cancelAnimationFrame(raf); raf = requestAnimationFrame(draw); });
+  video.addEventListener("seeked", () => { if (!priming && stacked() && video.paused && video.classList.contains("live")) draw(); });
+  const hide = () => {
+    cancelAnimationFrame(raf);
+    // a clip that ran to its end is already showing the still's picture: just keep drawing the still
+    const natural = video.ended || !video.duration || video.duration - video.currentTime < .45;
+    if (natural){ if (!showStill()) av.classList.add("nv-out"); return; }
+    // stopped part-way (the visitor asked something else): crossfade to the still, then hand it back to the canvas
+    av.classList.add("nv-out");
+    setTimeout(() => { if (!video.paused && !video.ended) return;
+      av.classList.add("nv-instant"); showStill();
+      requestAnimationFrame(() => requestAnimationFrame(() => av.classList.remove("nv-instant"))); }, 340);
+  };
+  const reset = () => { av.classList.remove("nv-out"); };
+  // from the start, the idle picture is the canvas too
+  const first = () => { av.classList.add("nv-instant"); if (showStill()) requestAnimationFrame(() => requestAnimationFrame(() => av.classList.remove("nv-instant"))); else av.classList.remove("nv-instant"); };
+  if (img && img.complete && img.naturalWidth) first(); else if (img) img.addEventListener("load", first, {once:true});
+  // the shadow is drawn in CSS pixels: redraw the still when the layout changes size
+  let rT = 0; addEventListener("resize", () => { clearTimeout(rT); rT = setTimeout(() => { if (video.paused || video.ended) showStill(); }, 120); });
+  return { hide, reset, showStill, still: () => buildStill() ? still : null };
 })();
 if (video){
   video.addEventListener("playing", () => { if (priming) return; video.classList.add("live"); $("#avatar") && $("#avatar").classList.add("has-video"); });
@@ -2002,7 +2075,9 @@ function speak(text, src){
     const L = m.text[lang].length;
     // with a live clip the text keeps pace with Zaid's voice and ends with the clip
     // the text runs at a brisk reading pace (and never behind the voice); it settles when the clip ends
-    if (clipOn() && video.duration > 0) m.pos = video.ended ? L : Math.max(m.pos, Math.min(L - 1, Math.max(Math.floor(L * video.currentTime / video.duration), Math.floor((performance.now() - m.t0) * .05))));
+    // while the clip is really playing the text keeps pace with it; once it has stopped for any reason the text finishes
+    const live = clipOn() && video.duration > 0 && isFinite(video.duration) && !video.ended && !video.paused;
+    if (live) m.pos = Math.max(m.pos, Math.min(L - 1, Math.max(Math.floor(L * video.currentTime / video.duration), Math.floor((performance.now() - m.t0) * .05))));
     else m.pos = Math.min(L, m.pos + 3);
     if (m.pos >= m.text[lang].length){ m.done = true; clearInterval(S.speaking.timer); S.speaking=null; renderControls(); }
     updateAnswerInPlace(m);
@@ -2450,8 +2525,16 @@ var introOn = !!C.intro && matchMedia("(orientation:landscape)").matches && !/[?
     let started = false;
     const start = () => {
       if (started) return; started = true;
+      // the clip takes over from the still at once, hidden behind the opening; the opening lifts only once he is moving
+      const av = $("#avatar"); if (av) av.classList.add("nv-instant");
       go();                                                     // inside the touch: the browser lets him speak
-      ov.classList.add("gone"); setTimeout(() => ov.remove(), 700);
+      const t0 = performance.now();
+      const reveal = () => { ov.classList.add("gone"); setTimeout(() => ov.remove(), 700); setTimeout(() => av && av.classList.remove("nv-instant"), 400); };
+      // the welcome clip opens with a silent pause on its first picture: the opening lifts as soon as that picture is
+      // on screen (the swap from the still happens underneath it), so he is fully visible before «مرحبًا»
+      const vid = $("#nvideo"), drawn = () => vid && vid.classList.contains("live") && vid.currentTime > 0.02;
+      const wait = () => { if (drawn()) requestAnimationFrame(reveal); else if (performance.now() - t0 > 2500) reveal(); else requestAnimationFrame(wait); };
+      requestAnimationFrame(wait);
     };
     ov.addEventListener("click", start); ov.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); start(); } });
     return;
@@ -2509,6 +2592,11 @@ if (introOn){
 `;
   document.body.appendChild(ov); document.documentElement.classList.add("intro-on");
   const v = $(".i-video", ov);
+  // the opening draws Zaid exactly like the app does: same canvas pipeline, same light, same shadow (no CSS shadow here)
+  const icv = $(".i-canvas", ov), ipaint = alphaGL(icv, true);
+  const paintStill = () => { const s = NV && NV.still && NV.still(); if (!s || !ipaint) return false;
+    fitClip(icv, s); ipaint(s); ov.classList.add("has-video", "stacked"); return true; };
+  if (!paintStill()){ const si = $("#avatar .nasser"); si && si.addEventListener("load", () => requestAnimationFrame(paintStill), {once:true}); }
   // decode the opening clip into a Blob and load it while the logo shows, so the first tap has nothing heavy left to do
   fetch(INTRO.video).then(r => r.blob()).then(b => {
     if (started) return;
@@ -2556,7 +2644,7 @@ if (introOn){
     // the shadows are drawn before the scale, so size them up by 1/k: once placed they match the app's Zaid exactly
     const f = `url(#nShade) drop-shadow(${16/k}px ${10/k}px ${18/k}px rgba(3,30,28,.38)) drop-shadow(${4/k}px ${4/k}px ${6/k}px rgba(3,30,28,.25))`;
     $$("video,canvas", N).forEach(el => el.style.setProperty("filter", "none", "important"));
-    const fig = $(".i-fig", N); if (fig) fig.style.filter = f.replace(/^url\([^)]*\)\s*/, "");
+    const fig = $(".i-fig", N); if (fig) fig.style.filter = "none";   // the canvas draws the shadow itself
     N.style.transformOrigin = "50% 100%";
     G.anim = N.animate([{transform:"none"}, {transform:`translate(${dx}px,${dy + drop}px) scale(${k})`}], {duration:ms, easing:"cubic-bezier(.65,0,.35,1)", fill:"forwards"});
     ov.classList.add("placed");
@@ -2573,8 +2661,17 @@ if (introOn){
   const holdQR = () => {
     if (held || finished) return; held = true;
     if (!$(".i-qr", ov).classList.contains("on")){ setTimeout(finish, 600); return; }
+    const row = document.createElement("span"); row.className = "i-qr-count";
     const bar = document.createElement("span"); bar.className = "i-qr-time"; bar.style.setProperty("--hold", QR_HOLD + "ms");
-    $(".i-qr", ov).appendChild(bar); requestAnimationFrame(() => requestAnimationFrame(() => bar.classList.add("run")));
+    const num = document.createElement("b"); num.className = "i-qr-num"; num.setAttribute("aria-hidden", "true");
+    row.append(bar, num); $(".i-qr", ov).appendChild(row); requestAnimationFrame(() => requestAnimationFrame(() => bar.classList.add("run")));
+    // a countdown in seconds beside the bar, in the visitor's digits
+    const t0 = performance.now(); let shown = -1;
+    const count = () => { if (finished || !num.isConnected) return;
+      const n = Math.max(1, Math.ceil((QR_HOLD - (performance.now() - t0)) / 1000));
+      if (n !== shown){ shown = n; num.textContent = lang === "ar" ? n.toLocaleString("ar-EG") : n; num.classList.remove("tick"); void num.offsetWidth; num.classList.add("tick"); }
+      if (performance.now() - t0 < QR_HOLD) requestAnimationFrame(count); };
+    count();
     const t = setTimeout(finish, QR_HOLD);
     const tap = e => { if (e.target.closest && e.target.closest(".i-qr")) return; removeEventListener("pointerdown", tap, true); clearTimeout(t); finish(); };
     addEventListener("pointerdown", tap, true);
@@ -2596,7 +2693,6 @@ if (introOn){
     if (started) return; started = true;
     const want = A(INTRO.video);                     // usually already prepared while the logo was showing
     if (v.src !== want){ v.src = want; v.preload = "auto"; v.load(); }
-    const icv = $(".i-canvas", ov), ipaint = alphaGL(icv);
     let iraf = 0;
     const idraw = () => {
       if (v.readyState >= 2 && ipaint){ fitClip(icv, v); ipaint(v); }
@@ -2606,6 +2702,7 @@ if (introOn){
     v.addEventListener("playing", () => { if (iprime) return; ov.classList.add("has-video"); if (ipaint && v.videoHeight > v.videoWidth * 1.6) ov.classList.add("stacked"); cancelAnimationFrame(iraf); iraf = requestAnimationFrame(idraw); });
     v.addEventListener("timeupdate", () => { if (v.duration) progress(v.currentTime / v.duration); if (v.currentTime >= INTRO.moveAt) stepOver(); });
     v.addEventListener("timeupdate", () => { if (v.duration && v.duration - v.currentTime < .35) ov.classList.add("ending"); });
+    v.addEventListener("ended", () => paintStill());   // the clip ends on the still's picture: draw the still itself, sized like the app's
     v.addEventListener("ended", holdQR);
     v.addEventListener("error", () => runFake(), {once:true});
     ov.classList.add("moved");
@@ -2616,7 +2713,8 @@ if (introOn){
     iprime = true; v.muted = false; v.volume = 0;
     try{ const pp = v.play(); v.pause(); if (pp && pp.catch) pp.catch(() => {}); }catch(e){}
     // the logo holds while the screen goes full, then gives way; Zaid comes in and speaks as he arrives
-    const HOLD = reduce ? 0 : 1600, SPEAK = reduce ? 200 : 500;   // the logo stays a full second longer after the tap
+    const HOLD = reduce ? 0 : 1600, SPEAK = 0;   // the logo grows gently, then opens out as he starts
+    if (!reduce) ov.classList.add("counting");
     setTimeout(() => {
       ov.classList.add("play");
       setTimeout(() => { iprime = false; v.volume = 1; playVideo(); }, SPEAK);
