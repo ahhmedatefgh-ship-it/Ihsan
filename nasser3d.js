@@ -1,4 +1,4 @@
-/* Nasser 3D: a piece you turn with your finger, shown at the top of the piece's details.
+/* Zaid 3D: a piece you turn with your finger, shown at the top of the piece's details.
    window.Lamp3D.mount(container, model) -> { dispose() }.  three.js is loaded only the first time a piece is opened. */
 (() => {
   "use strict";

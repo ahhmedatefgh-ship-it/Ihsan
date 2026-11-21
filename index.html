@@ -26,7 +26,7 @@
   if (screen.orientation) screen.orientation.addEventListener("change", () => setTimeout(fit, 300));
 })();
 </script>
-<title>ناصر · الإحسان</title>
+<title>زيد · الإحسان</title>
 <meta name="theme-color" content="#3D9A8E">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -195,7 +195,7 @@ body.paused .bars i{animation-play-state:paused}
   .frame b{display:none}
 }
 [data-thread]>*{flex-shrink:0}
-/* phones: the speaking/listening indicator floats at the top of Nasser's stage */
+/* phones: the speaking/listening indicator floats at the top of Zaid's stage */
 @media (max-width:899px) and (orientation:portrait), (max-width:899px) and (min-height:541px), (orientation:portrait) and (max-width:1100px){
   [data-status]{position:fixed!important;z-index:30;top:calc(54px + var(--safe-t))!important;bottom:auto!important;left:50%!important;right:auto!important;transform:translateX(-50%)!important;
     display:flex!important;align-items:center;gap:7px;height:26px;padding:0 12px!important;border-radius:999px;background:rgba(0,0,0,.62)!important;color:#fff!important;font:600 12px/1 system-ui,sans-serif!important;white-space:nowrap;margin:0!important}
@@ -221,7 +221,7 @@ html body, html body *:not(svg):not(path){font-family:"Tajawal",system-ui,-apple
 .c-mic.listening{box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 35%,transparent)}
 .c-send:active,.c-mic:active{transform:scale(.94)}
 
-/* phones: composer pinned to the bottom; pause/mute float on Nasser's stage */
+/* phones: composer pinned to the bottom; pause/mute float on Zaid's stage */
 @media (max-width:899px) and (orientation:portrait), (max-width:899px) and (min-height:541px), (orientation:portrait) and (max-width:1100px){
   .composer{position:fixed!important;left:10px;right:10px;bottom:calc(10px + var(--safe-b));margin:0!important;z-index:40}
   .c-mic{display:grid}
@@ -255,7 +255,7 @@ html body, html body *:not(svg):not(path){font-family:"Tajawal",system-ui,-apple
   .switcher a{padding:5px 6px;text-align:center}
   .switcher:hover,.switcher:focus-within{opacity:1}
 }
-/* phones: full screen is not available on iPhone; drop it to free the space above Nasser */
+/* phones: full screen is not available on iPhone; drop it to free the space above Zaid */
 @media (max-width:899px) and (orientation:portrait), (max-width:899px) and (min-height:541px), (orientation:portrait) and (max-width:1100px){ [data-a="fs"]{display:none!important} }
 /* composer focus: no double outline on the field; one soft ring around the pill */
 .composer .c-in,.composer .c-in:focus,.composer .c-in:focus-visible{outline:none!important;box-shadow:none!important;border:0!important;border-radius:0!important;background:transparent!important}
@@ -268,7 +268,7 @@ html body, html body *:not(svg):not(path){font-family:"Tajawal",system-ui,-apple
     height:var(--app-h,100dvh)!important;min-height:0!important;max-height:none!important;margin:0!important;overflow:hidden!important}
 }
 
-/* every screen: pause and mute are two small round buttons beside Nasser; the mic lives in the composer */
+/* every screen: pause and mute are two small round buttons beside Zaid; the mic lives in the composer */
 .c-mic{display:grid!important}
 .c-send{display:none!important}
 .composer.has-text .c-send{display:grid!important;opacity:1}
@@ -285,7 +285,7 @@ html body, html body *:not(svg):not(path){font-family:"Tajawal",system-ui,-apple
 [data-stage]>[data-voice] [data-a="pause"]:disabled{opacity:.45}
 [data-stage]>[data-voice] [data-status],[data-stage]>[data-voice] .status{display:none!important}
 
-/* one small "speaking / listening" pill on Nasser's stage */
+/* one small "speaking / listening" pill on Zaid's stage */
 [data-stage]>.np{position:absolute!important;z-index:7;top:auto!important;bottom:calc(var(--feet,0px) + 14px)!important;left:50%!important;right:auto!important;transform:translateX(-50%)!important;
   display:flex!important;align-items:center;gap:7px;height:28px;padding:0 12px!important;border-radius:999px;background:rgba(0,0,0,.55)!important;color:#fff!important;
   font:600 12.5px/1 "Tajawal",system-ui,sans-serif!important;white-space:nowrap;margin:0!important;opacity:0;transition:opacity .2s ease;pointer-events:none}
@@ -315,7 +315,7 @@ html body, html body *:not(svg):not(path){font-family:"Tajawal",system-ui,-apple
 /* three questions left: the last one takes the full row in two-column grids */
 @media (max-width:899px) and (orientation:portrait), (max-width:899px) and (min-height:541px), (orientation:portrait) and (max-width:1100px){ [data-qlist]>li:nth-child(3){grid-column:1/-1} }
 
-/* phones: pause/mute sit as a small row in the stage's top corner under the header, not over Nasser */
+/* phones: pause/mute sit as a small row in the stage's top corner under the header, not over Zaid */
 @media (max-width:899px) and (orientation:portrait), (max-width:899px) and (min-height:541px), (orientation:portrait) and (max-width:1100px){
   [data-stage]>[data-voice]{top:var(--vtop,56px)!important;bottom:auto!important;inset-inline-end:10px!important;flex-direction:column!important;gap:6px!important}
   [data-stage]>[data-voice] [data-a="pause"],[data-stage]>[data-voice] [data-a="mute"]{width:32px!important;height:32px!important;background:rgba(0,0,0,.32)!important;border-color:rgba(255,255,255,.3)!important}
@@ -527,7 +527,7 @@ html[dir="rtl"] .i-qr{grid-column:3;justify-self:start;margin:0 0 6vh 4vw}
 /* camera pull-back: the page fades in quickly while it settles */
 .intro.out{transition:background-color 1.2s cubic-bezier(.4,0,.2,1)}
 
-/* Nasser in his app spot during the video: a short fade at the hem only */
+/* Zaid in his app spot during the video: a short fade at the hem only */
 .intro.placed .i-nasser{-webkit-mask-image:linear-gradient(180deg,#000 92%,transparent 100%);mask-image:linear-gradient(180deg,#000 92%,transparent 100%)}
 html.intro-reveal body>*:not(.intro):not(.field){transition:opacity .8s cubic-bezier(.4,0,.2,1)}
 .intro.out{transition:background-color 1.3s cubic-bezier(.4,0,.2,1)}
@@ -557,8 +557,8 @@ html.intro-reveal body>.field{transition:none}
   background:radial-gradient(closest-side,rgba(240,250,248,.4),rgba(225,242,238,.18) 55%,rgba(225,242,238,0) 100%);filter:blur(12px);opacity:0;transition:opacity .8s ease}
 .intro.placed .i-nasser::after{opacity:1}
 
-/* the hand-over: as the screen comes in, the light under Nasser fades with it and his picture takes the app's exact edge;
-   then the app's own Nasser (identical, same spot) replaces him in a single frame, with no crossfade */
+/* the hand-over: as the screen comes in, the light under Zaid fades with it and his picture takes the app's exact edge;
+   then the app's own Zaid (identical, same spot) replaces him in a single frame, with no crossfade */
 .intro.out .i-nasser video,.intro.out .i-nasser img{-webkit-mask-image:linear-gradient(180deg,#000 95%,transparent 100%);mask-image:linear-gradient(180deg,#000 95%,transparent 100%)}
 .intro.out .i-nasser::after{opacity:0;transition:opacity .9s cubic-bezier(.4,0,.2,1)}
 html.intro-on #avatar .nasser{transition:none!important}
@@ -613,7 +613,7 @@ html.intro-on #avatar .nasser{transition:none!important}
 <style>
 /* Concept 8 · زجاج — the cover teal seen through frosted glass. A few soft fields of the emblem's colours
    (cobalt, turquoise, deep teal, a touch of gold) sit behind; the arch, the questions and the answer are glass panes
-   floating over them. Nasser stands sharp in front of his glass arch. */
+   floating over them. Zaid stands sharp in front of his glass arch. */
 :root{
   --teal:#3D9A8E;
   --cobalt:#2F5DB0; --turq:#5CC9C3; --deep:#1C6A62; --gold:#E7BC5E;
@@ -669,7 +669,7 @@ h1,h2,h3,h4,p{margin:0}
 @media (hover:hover) and (pointer:fine){.tb:hover{background:rgba(255,255,255,.28)}}
 .badge{box-shadow:0 0 0 2px rgba(255,255,255,.8)}
 
-/* ---------- stage: glass arch, Nasser, question panes ---------- */
+/* ---------- stage: glass arch, Zaid, question panes ---------- */
 .stage{position:relative;min-width:0;min-height:0;display:grid;grid-template-rows:minmax(0,1fr) auto;justify-items:center}
 .archrow{position:relative;min-height:0;width:100%;height:100%;display:flex;justify-content:center}
 .arch{position:relative;height:100%;aspect-ratio:785/1088;max-width:100%;min-height:0}
@@ -826,7 +826,7 @@ html[lang="en"] .m p{line-height:1.6}
 .thread>.m:not(.first),.thread>.u{animation:ihPop .7s var(--ih-spring) both}
 .thread>.m:not(.first){transform-origin:0 100%}.thread>.u{transform-origin:100% 100%}
 html[dir="ltr"] .thread>.m:not(.first){transform-origin:100% 100%} html[dir="ltr"] .thread>.u{transform-origin:0 100%}
-/* messages: welcome and visitor on the right, Nasser's replies on the left */
+/* messages: welcome and visitor on the right, Zaid's replies on the left */
 .thread>.m.first{align-self:flex-start}
 /* the visitor's bubble points to their own side (right in Arabic) */
 .thread>.u{align-self:flex-start;border-radius:18px!important;border-start-start-radius:6px!important}
@@ -875,11 +875,11 @@ html[dir="ltr"] .thread>.m:not(.first){transform-origin:100% 100%} html[dir="ltr
   .brand .em{height:34px!important}.brand .lg{height:30px!important}.brand .sep{height:24px!important}
 }
 
-/* portrait: the suggested questions live inside the conversation, under the welcome; Nasser takes the freed space */
+/* portrait: the suggested questions live inside the conversation, under the welcome; Zaid takes the freed space */
 .qs-in{display:none}
 @media (max-width:899px) and (orientation:portrait), (max-width:899px) and (min-height:541px), (orientation:portrait) and (max-width:1100px){
   .page{grid-template-rows:auto minmax(0,54fr) 0 minmax(0,46fr)!important}
-  /* keyboard up: Nasser stays in view, smaller, and the chat keeps room above the keyboard */
+  /* keyboard up: Zaid stays in view, smaller, and the chat keeps room above the keyboard */
   html.kb .page{grid-template-rows:auto minmax(0,40fr) 0 minmax(0,60fr)!important}
   .qs{display:none!important}
   .talk{margin-top:6px}
@@ -892,7 +892,7 @@ html[dir="ltr"] .thread>.m:not(.first){transform-origin:100% 100%} html[dir="ltr
   .qs-in .qp.scan{background:rgba(231,188,94,.16)!important;border-color:rgba(231,188,94,.55)!important}
 }
 
-/* depth: soft rim light from above and a cast shadow so Nasser stands off the background */
+/* depth: soft rim light from above and a cast shadow so Zaid stands off the background */
 #avatar .nasser,#avatar .nasser-video,#avatar .nasser-canvas{filter:drop-shadow(0 -3px 16px rgba(255,255,255,.3)) drop-shadow(0 0 34px rgba(3,30,28,.45)) drop-shadow(28px 18px 30px rgba(3,30,28,.5))!important}
 
 /* product message takes the full width; its two actions stack so the longer label fits */
@@ -908,11 +908,11 @@ body{background:transparent}
   /* header buttons a little larger */
   .tb{width:42px!important;height:42px!important}.tb svg{width:19px!important;height:19px!important}
   .tools{gap:7px}
-  /* Nasser stands right on the chat, no gap */
+  /* Zaid stands right on the chat, no gap */
   .talk{margin-top:0!important}
   /* softer, grounded shadow: no light rim on the edges */
   #avatar .nasser,#avatar .nasser-video,#avatar .nasser-canvas{filter:drop-shadow(0 14px 22px rgba(3,30,28,.42)) drop-shadow(10px 8px 16px rgba(3,30,28,.28))!important}
-  /* voice: mute on top, pause underneath and only while Nasser is speaking */
+  /* voice: mute on top, pause underneath and only while Zaid is speaking */
   [data-stage]>[data-voice]{gap:8px!important}
   [data-stage]>[data-voice] [data-a="pause"],[data-stage]>[data-voice] [data-a="mute"]{width:40px!important;height:40px!important;background:rgba(6,40,40,.4)!important;border-color:rgba(255,255,255,.35)!important;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
   [data-stage]>[data-voice] svg{width:17px!important;height:17px!important}
@@ -958,7 +958,7 @@ body{background:transparent}
 @keyframes made{0%{opacity:0;transform:translateY(-8px)}30%{opacity:1;transform:none;box-shadow:0 0 0 2px rgba(255,255,255,.8)}100%{box-shadow:0 0 0 0 transparent}}
 .wa-fab{background:rgba(255,255,255,.9);color:#1DAA53}
 
-/* laptop: Nasser's cut-off hem melts into the background instead of ending on a hard line */
+/* laptop: Zaid's cut-off hem melts into the background instead of ending on a hard line */
 @media (min-width:900px) and (orientation:landscape), (min-width:1101px), (orientation:landscape) and (max-height:540px){
   #avatar .nasser,#avatar .nasser-video,#avatar .nasser-canvas{-webkit-mask-image:linear-gradient(180deg,#000 95%,transparent 100%);mask-image:linear-gradient(180deg,#000 95%,transparent 100%);
     filter:drop-shadow(0 4px 7px rgba(3,30,28,.35))!important}
@@ -1030,7 +1030,7 @@ html[lang="en"] #langBtn{padding:0 0 4px!important;font-size:20px}
 .pc .btn{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:8px!important;line-height:1}
 .pc .btn svg{flex:0 0 auto;width:17px!important;height:17px!important;margin:0!important;position:static!important;transform:none!important}
 
-/* phone: "Nasser is speaking" sits low, between his hands and the chat, so it never covers the moving hands */
+/* phone: "Zaid is speaking" sits low, between his hands and the chat, so it never covers the moving hands */
 @media (max-width:899px) and (orientation:portrait), (max-width:899px) and (min-height:541px), (orientation:portrait) and (max-width:1100px){ [data-stage]>.np{bottom:6px!important;padding:5px 12px!important;font-size:12.5px!important} }
 
 /* card buttons: icon hugs the label as one centred unit */
@@ -1041,7 +1041,7 @@ html[lang="en"] #langBtn{padding:0 0 4px!important;font-size:20px}
 /* RTL: icon sits on the left of the label */
 html[dir=rtl] .pc .btn{flex-direction:row-reverse!important}
 
-/* laptop welcome title: "…مساعدك الذكي" on line one, "في دار الآثار الإسلامية." on line two */
+/* laptop welcome title: "…مساعدك الذكي في دار" on line one, "الآثار الإسلامية." on line two */
 .m.first h3 .wbrL{display:inline}
 .m.first h3{text-wrap:wrap}
 @media (max-width:899px) and (orientation:portrait), (max-width:899px) and (min-height:541px), (orientation:portrait) and (max-width:1100px){ .m.first h3 .wbrL{display:none} .m.first h3{text-wrap:balance} }
@@ -1080,7 +1080,7 @@ html[dir=ltr] .pc .inf h4{padding-left:0;padding-right:44px}
 #avatar.nv-stacked .nasser-video{position:absolute!important;width:2px!important;height:2px!important;opacity:0!important;display:block!important;pointer-events:none}
 
 /* ---- 18 Nov ---- */
-/* one shadow for Nasser, cast by his box: the still and every clip share it, so it never doubles or jumps
+/* one shadow for Zaid, cast by his box: the still and every clip share it, so it never doubles or jumps
    while one morphs into the other, and the bottom fade can no longer cut it into a hard edge */
 #avatar .nasser,#avatar .nasser-video,#avatar .nasser-canvas{filter:none!important}
 #avatar{filter:drop-shadow(16px 10px 18px rgba(3,30,28,.38)) drop-shadow(4px 4px 6px rgba(3,30,28,.25))}
@@ -1101,7 +1101,7 @@ html[dir=ltr] .pc .inf h4{padding-left:0;padding-right:44px}
           mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent),linear-gradient(180deg,#000 94%,transparent 99%)!important;
   -webkit-mask-composite:source-in;mask-composite:intersect}
 
-/* laptop question cards: the same dark glass without the live blur. Where Nasser's picture ran under a card, the blur
+/* laptop question cards: the same dark glass without the live blur. Where Zaid's picture ran under a card, the blur
    was drawn in two parts and left a straight seam through the card (seen on the scan card) */
 @media (min-width:900px) and (orientation:landscape), (min-width:1101px), (orientation:landscape) and (max-height:540px){
   .stage .qs .qp{-webkit-backdrop-filter:none;backdrop-filter:none;
@@ -1130,6 +1130,8 @@ html[dir="rtl"] .i-qr-time::after{transform-origin:100% 50%}
 /* the opening picture casts the app's shadow from a wrapper, so the bottom fade never cuts it and the hand-over is identical */
 .i-fig{position:absolute;inset:0;filter:drop-shadow(16px 10px 18px rgba(3,30,28,.38)) drop-shadow(4px 4px 6px rgba(3,30,28,.25))}
 .i-nasser video,.i-nasser img,.i-nasser canvas{filter:none!important}
+/* the still carries the same light-from-the-left shading the clips are drawn with, so clip and still meet exactly */
+.intro .i-nasser img.i-still{filter:url(#nShade)!important}
 .intro .i-nasser .i-fig video,.intro .i-nasser .i-fig img{-webkit-mask-image:linear-gradient(180deg,#000 95%,transparent 100%)!important;mask-image:linear-gradient(180deg,#000 95%,transparent 100%)!important}
 .intro .i-nasser .i-fig .i-canvas{
   -webkit-mask-image:linear-gradient(90deg,transparent,#000 1.5%,#000 98.5%,transparent),linear-gradient(180deg,#000 95%,transparent 100%)!important;
@@ -1137,10 +1139,10 @@ html[dir="rtl"] .i-qr-time::after{transform-origin:100% 50%}
   -webkit-mask-composite:source-in;mask-composite:intersect}
 /* no extra light pool under him in the opening and no extra halo behind him in the app: the same single shadow in both */
 .i-nasser::after,.arch::before{display:none!important}
-/* the app's Nasser is the same picture in the same place: swap in one frame, no crossfade (a crossfade doubles the shadow) */
+/* the app's Zaid is the same picture in the same place: swap in one frame, no crossfade (a crossfade doubles the shadow) */
 .intro.handed .i-fig{visibility:hidden}
 
-/* opening: the logo leaves quickly and Nasser arrives on the clip's own first frame, already moving into his first word */
+/* opening: the logo leaves quickly and Zaid arrives on the clip's own first frame, already moving into his first word */
 .intro .i-logo{transition:opacity .45s cubic-bezier(.23,1,.32,1),transform .6s cubic-bezier(.23,1,.32,1)}
 .intro .i-stage{will-change:opacity,transform;transform:translateY(14px);transition:opacity .6s cubic-bezier(.23,1,.32,1) .2s,transform .7s cubic-bezier(.23,1,.32,1) .2s}
 .intro.play .i-stage{transform:none}
@@ -1156,7 +1158,7 @@ html[dir="rtl"] .i-qr-time::after{transform-origin:100% 50%}
           mask-image:linear-gradient(90deg,transparent,#000 1.5%,#000 98.5%,transparent)!important}
 
 /* ---- hem and hand-over, refined ----
-   The opening and the app now end Nasser's robe the same way (a soft fade that takes his shadow with it),
+   The opening and the app now end Zaid's robe the same way (a soft fade that takes his shadow with it),
    so nothing about the hem or its shadow changes at the hand-over. */
 .intro .i-fig{-webkit-mask-image:linear-gradient(180deg,#000 94%,transparent 99%)!important;mask-image:linear-gradient(180deg,#000 94%,transparent 99%)!important}
 .intro .i-nasser .i-fig video,.intro .i-nasser .i-fig img{-webkit-mask-image:none!important;mask-image:none!important}
@@ -1176,7 +1178,7 @@ html[dir="rtl"] .i-qr-time::after{transform-origin:100% 50%}
 .intro.stacked.ending .i-canvas,.intro.stacked.landing .i-canvas{opacity:1!important;visibility:hidden;transition:visibility 0s linear .4s}
 .intro.stacked.ending .i-still,.intro.stacked.landing .i-still{opacity:1!important;transition:opacity .35s cubic-bezier(.4,0,.2,1)!important}
 
-/* hand-over to the app: the app's Nasser is already in place underneath; the opening picture drops its own shadow (so it is never
+/* hand-over to the app: the app's Zaid is already in place underneath; the opening picture drops its own shadow (so it is never
    doubled) and dissolves away over it, so a sub-pixel difference between the two pictures reads as one soft change, not an edge jump */
 .intro.handed .i-fig{visibility:visible!important;filter:none!important;opacity:0;transition:opacity .32s cubic-bezier(.4,0,.2,1)}
 @media (prefers-reduced-motion: reduce){.intro.handed .i-fig{transition:none}}
@@ -1204,7 +1206,7 @@ html[dir=ltr] .pc .inf .wa-fab{float:right;margin:1px 10px 6px 0}
 .pc .inf h4{padding-left:0!important;padding-right:0!important}
 .pc .inf .acts{clear:both}
 
-/* while a clip plays, the canvas draws Nasser's shadow itself: the box's CSS shadow eases out so it is never doubled,
+/* while a clip plays, the canvas draws Zaid's shadow itself: the box's CSS shadow eases out so it is never doubled,
    and eases back in as he returns to the still */
 #avatar{transition:filter .3s ease}
 #avatar.nv-stacked.nv-on:not(.nv-out){filter:drop-shadow(16px 10px 18px rgba(3,30,28,0)) drop-shadow(4px 4px 6px rgba(3,30,28,0))}
@@ -1212,8 +1214,8 @@ html[dir=ltr] .pc .inf .wa-fab{float:right;margin:1px 10px 6px 0}
 /* morph between clip and still: each layer carries its own shadow (the still's in CSS, the clip's drawn in WebGL), so nothing
    ever shadows a shadow; the still's shadow fades out as the clip fades in, and back as the clip fades out */
 #avatar{filter:none!important;transition:none}
-#avatar .nasser{filter:drop-shadow(16px 10px 18px rgba(3,30,28,.38)) drop-shadow(4px 4px 6px rgba(3,30,28,.25))!important;transition:opacity .3s ease,filter .3s ease}
-#avatar.nv-stacked.nv-on:not(.nv-out) .nasser{filter:drop-shadow(16px 10px 18px rgba(3,30,28,0)) drop-shadow(4px 4px 6px rgba(3,30,28,0))!important;transition:opacity .3s ease .3s,filter .3s ease}
+#avatar .nasser{filter:url(#nShade) drop-shadow(16px 10px 18px rgba(3,30,28,.38)) drop-shadow(4px 4px 6px rgba(3,30,28,.25))!important;transition:opacity .3s ease,filter .3s ease}
+#avatar.nv-stacked.nv-on:not(.nv-out) .nasser{filter:url(#nShade) drop-shadow(16px 10px 18px rgba(3,30,28,0)) drop-shadow(4px 4px 6px rgba(3,30,28,0))!important;transition:opacity .3s ease .3s,filter .3s ease}
 #avatar.nv-stacked.nv-out .nasser{transition:opacity 0s,filter .3s ease!important}
 
 /* 3D: no stand-in photo; if the model is not ready within a moment a quiet ring turns in its place */
@@ -1223,7 +1225,7 @@ html[dir=ltr] .pc .inf .wa-fab{float:right;margin:1px 10px 6px 0}
 @keyframes spin3d{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion: reduce){ .d-3d.is-loading::before{animation-duration:2.4s} }
 
-/* landscape: Nasser and his question cards stand a little toward the chat; the QR and the pause / mute rail sit in the space on his other side */
+/* landscape: Zaid and his question cards stand a little toward the chat; the QR and the pause / mute rail sit in the space on his other side */
 @media (min-width:900px) and (orientation:landscape), (min-width:1101px), (orientation:landscape) and (max-height:540px){
   .arch, .stage .qs{translate:var(--nx,0px) 0}   /* the opening starts with him centred; its glide lands him on this new spot */
   .stage .qs{max-width:var(--qsw,none);justify-self:center;margin-inline:auto}
@@ -1272,7 +1274,7 @@ html[dir=ltr] .pc .inf .wa-fab{float:right;margin:1px 10px 6px 0}
           <path class="i" transform="translate(39 52) scale(.9 .95)" d="M0,1100 L0,468 L3,447 L6,439 L9,434 L12,429 L15,426 L18,423 L21,420 L24,418 L27,416 L30,414 L33,330 L36,319 L39,311 L42,304 L45,298 L48,292 L51,287 L54,283 L57,279 L60,275 L63,272 L66,268 L69,265 L72,263 L75,260 L78,258 L81,255 L84,253 L87,251 L90,249 L93,247 L96,246 L99,244 L102,242 L105,241 L108,240 L111,238 L114,237 L117,236 L120,235 L123,234 L126,234 L129,233 L132,232 L135,214 L138,213 L141,213 L144,213 L147,213 L150,213 L153,212 L156,212 L159,206 L162,198 L165,192 L168,186 L171,181 L174,176 L177,171 L180,167 L183,163 L186,160 L189,156 L192,153 L195,150 L198,148 L201,145 L204,143 L207,141 L210,138 L213,137 L216,135 L219,133 L222,131 L225,130 L228,128 L231,127 L234,126 L237,125 L240,124 L243,123 L246,122 L249,121 L252,120 L255,119 L258,119 L261,118 L264,118 L267,117 L270,117 L273,116 L276,98 L279,98 L282,97 L285,97 L288,96 L291,95 L294,95 L297,94 L300,93 L303,92 L306,91 L309,90 L312,89 L315,88 L318,87 L321,85 L324,84 L327,82 L330,80 L333,79 L336,77 L339,75 L342,72 L345,70 L348,68 L351,65 L354,63 L357,60 L360,57 L363,54 L366,51 L369,47 L372,44 L375,40 L378,36 L381,32 L384,28 L387,23 L390,18 L393,13 L396,12 L399,17 L402,23 L405,28 L408,33 L411,38 L414,42 L417,46 L420,50 L423,53 L426,56 L429,60 L432,63 L435,65 L438,68 L441,70 L444,73 L447,75 L450,77 L453,79 L456,80 L459,82 L462,84 L465,85 L468,86 L471,88 L474,89 L477,90 L480,91 L483,92 L486,92 L489,93 L492,94 L495,95 L498,95 L501,96 L504,97 L507,98 L510,98 L513,116 L516,117 L519,117 L522,118 L525,118 L528,119 L531,119 L534,120 L537,121 L540,121 L543,122 L546,123 L549,124 L552,126 L555,127 L558,128 L561,130 L564,131 L567,133 L570,135 L573,137 L576,139 L579,141 L582,143 L585,146 L588,148 L591,151 L594,154 L597,157 L600,160 L603,164 L606,168 L609,172 L612,177 L615,182 L618,187 L621,194 L624,202 L627,211 L630,213 L633,213 L636,213 L639,213 L642,214 L645,214 L648,214 L651,231 L654,232 L657,233 L660,234 L663,235 L666,236 L669,237 L672,238 L675,239 L678,240 L681,241 L684,242 L687,244 L690,246 L693,247 L696,249 L699,251 L702,253 L705,255 L708,257 L711,260 L714,263 L717,265 L720,268 L723,272 L726,275 L729,279 L732,284 L735,288 L738,293 L741,299 L744,305 L747,313 L750,323 L753,341 L756,415 L759,416 L762,418 L765,420 L768,423 L771,426 L774,430 L777,434 L780,440 L783,449 L785,459 L785,1100 Z"/>
         </svg>
         <div class="avatar" id="avatar">
-          <img class="nasser" src="nasser-still.webp" alt="ناصر" draggable="false">
+          <img class="nasser" src="nasser-still.webp" alt="زيد" draggable="false">
           <video class="nasser-video" id="nvideo" playsinline preload="auto"></video>
         </div>
       </div>
@@ -1308,7 +1310,7 @@ window.CONCEPT = {
     return s;
   },
   msg:{
-    welcome:(m,H) => `<article class="m first"><h3>${H.t("welcomeH").replace(/(ناصر،|Nasser,)\s/, "$1<br class=\"wbr\"> ").replace(/(الذكي|assistant)\s/, "$1<br class=\"wbrL\"> ")}</h3><p>${H.t("welcome")}</p><ul class="qs-in" data-qlist></ul></article>`,
+    welcome:(m,H) => `<article class="m first"><h3>${H.t("welcomeH").replace(/(زيد،|Zaid,)\s/, "$1<br class=\"wbr\"> ").replace(/(الذكي في دار|assistant)\s/, "$1<br class=\"wbrL\"> ")}</h3><p>${H.t("welcome")}</p><ul class="qs-in" data-qlist></ul></article>`,
     user:(m,H) => `<div class="u">${m.text[H.lang()]}</div>`,
     userqr:(m,H) => `<div class="u">${H.ICON.qr}<span>${H.t("scannedChip")}</span></div>`,
     typing:(m,H) => `<article class="m">${by(H)}<p>${H.t("processing")} <span class="dots"><i></i><i></i><i></i></span></p></article>`,
@@ -1323,7 +1325,7 @@ window.CONCEPT = {
 };
 </script>
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js" defer></script>
-<script>/* Ihsan × Nasser — shared behaviour for every concept.
+<script>/* Ihsan × Zaid — shared behaviour for every concept.
    A concept page supplies markup with these hooks and may set window.CONCEPT:
    [data-qlist] [data-thread] [data-a="scan|reset|fs|pause|mute|mic"] #cartBtn #langBtn #badge
    [data-logo] [data-t="key"] [data-status] [data-statustext] #avatar img.nasser video#nvideo  */
@@ -1344,7 +1346,7 @@ const A = p => {
 };
 
 /* ---------------- Content ---------------- */
-// Each answer can take a Nasser video later: video:{ar:"assets/q1-ar.mp4", en:"assets/q1-en.mp4"}
+// Each answer can take a Zaid video later: video:{ar:"assets/q1-ar.mp4", en:"assets/q1-en.mp4"}
 const QUESTIONS = [
   { q:{ar:"ما قصة معرض الإحسان؟", en:"What is the story of the Ihsan exhibition?"},
     a:{ar:"معرض «الإحسان» صنعه أطفالٌ من دار الآثار الإسلامية، سألوا: لماذا كل هذا الجمال في المساجد؟ فوجدوا الجواب في الإحسان: أن تُتقن ما تعمل.",
@@ -1401,13 +1403,13 @@ const useP = id => { if (PRODUCTS[id]) PRODUCT = PRODUCTS[id]; return PRODUCT; }
 
 const T = {
   ar:{
-    title:"ناصر · الإحسان", name:"ناصر", role:"مساعدك الذكي في دار الآثار الإسلامية", nameFull:"ناصر، مساعدك الذكي",
+    title:"زيد · الإحسان", name:"زيد", role:"مساعدك الذكي في دار الآثار الإسلامية", nameFull:"زيد، مساعدك الذكي",
     org:"دار الآثار الإسلامية", powered:"مدعوم من", exhibition:"الإحسان: صناعة الجمال في المساجد",
-    suggested:"اسأل ناصر", scanTitle:"امسح رمز القطعة", scanShort:"امسح رمز قطعة",
+    suggested:"اسأل زيد", scanTitle:"امسح رمز القطعة", scanShort:"امسح رمز قطعة",
     scanSub:"وجّه الكاميرا إلى رمز QR بجانب أي قطعة لتتعرّف عليها وتحفظها وتشاركها",
     pause:"إيقاف مؤقت", resume:"متابعة", mute:"كتم الصوت", unmute:"تشغيل الصوت",
-    speaking:"ناصر يتحدث…", listening:"ناصر يستمع…", pausedS:"متوقف مؤقتًا", idle:"اضغط وتحدّث",
-    welcomeH:"مرحبًا بك! أنا ناصر، مساعدك الذكي في دار الآثار الإسلامية.",
+    speaking:"زيد يتحدث…", listening:"زيد يستمع…", pausedS:"متوقف مؤقتًا", idle:"اضغط وتحدّث",
+    welcomeH:"مرحبًا بك! أنا زيد، مساعدك الذكي في دار الآثار الإسلامية.",
     welcome:"اسألني عن معرض «الإحسان: صناعة الجمال في المساجد»، أو امسح رمز أي قطعة لتتعرّف عليها.",
     micReply:"أنا أسمعك. اختر سؤالًا، أو امسح رمز قطعة لنبدأ.", micDenied:"الميكروفون مقفول لهذا الموقع. اضغط على أيقونة القفل بجانب الرابط واسمح بالميكروفون، ثم أعد المحاولة.", micNone:"لم أسمع شيئًا. اضغط على الميكروفون وتحدّث بعده مباشرة.", micFrame:"الميكروفون لا يعمل داخل هذه المعاينة. افتح الرابط مباشرة في Safari أو Chrome.", micSiri:"لتفعيل الصوت على iPhone: الإعدادات ← عام ← لوحة المفاتيح ← فعّل الإملاء، ثم أعد المحاولة.", micService:"خدمة التعرف على الصوت غير متاحة في هذا المتصفح. جرّب Chrome أو Safari.", micNet:"التعرف على الصوت يحتاج إلى اتصال بالإنترنت.",
     scannedChip:"رمز القطعة", processing:"جارٍ المعالجة",
@@ -1425,18 +1427,18 @@ const T = {
     camIdle:"وجّه الكاميرا نحو رمز QR وسيُقرأ تلقائيًا",
     reading:"جارٍ قراءة الرمز…", noCode:"لم نجد رمز QR في الصورة. حاول مرة أخرى وقرّب الكاميرا من الرمز.",
     takePhoto:"أرفق صورة الرمز من جهازك", demoScan:"تجربة بدون كاميرا", currency:"د.ك",
-    fs:"ملء الشاشة", reset:"البدء من جديد", langLabel:"English", close:"إغلاق", talk:"تحدّث إلى ناصر",
-    you:"أنت", nasser:"ناصر", stop:"محطة", objNo:"رقم القطعة", price:"السعر", acquire:"للاقتناء",
-    nasserLabel:"ناصر · مساعد ذكي", typeHere:"اكتب سؤالك لناصر…", send:"إرسال", typedReply:"سؤال جميل! في هذه النسخة أجيب عن الأسئلة المقترحة فقط.", nasserMedium:"صورة رقمية تتحدث، ٢٠٢٦", nasserNote:"يرافق زوّار المعرض ويجيب عن أسئلتهم."
+    fs:"ملء الشاشة", reset:"البدء من جديد", langLabel:"English", close:"إغلاق", talk:"تحدّث إلى زيد",
+    you:"أنت", nasser:"زيد", stop:"محطة", objNo:"رقم القطعة", price:"السعر", acquire:"للاقتناء",
+    nasserLabel:"زيد · مساعد ذكي", typeHere:"اكتب سؤالك لزيد…", send:"إرسال", typedReply:"سؤال جميل! في هذه النسخة أجيب عن الأسئلة المقترحة فقط.", nasserMedium:"صورة رقمية تتحدث، ٢٠٢٦", nasserNote:"يرافق زوّار المعرض ويجيب عن أسئلتهم."
   },
   en:{
-    title:"Nasser · Ihsan", name:"Nasser", role:"Your smart assistant at Dar al-Athar al-Islamiyyah", nameFull:"Nasser, your smart assistant",
+    title:"Zaid · Ihsan", name:"Zaid", role:"Your smart assistant at Dar al-Athar al-Islamiyyah", nameFull:"Zaid, your smart assistant",
     org:"Dar al-Athar al-Islamiyyah", powered:"Powered by", exhibition:"Ihsan: The Making of Beauty in Mosques",
-    suggested:"Ask Nasser", scanTitle:"Scan a piece's code", scanShort:"Scan a piece",
+    suggested:"Ask Zaid", scanTitle:"Scan a piece's code", scanShort:"Scan a piece",
     scanSub:"Point your camera at the QR code beside any piece to learn about it, save it and share it",
     pause:"Pause", resume:"Resume", mute:"Mute voice", unmute:"Unmute voice",
-    speaking:"Nasser is speaking…", listening:"Nasser is listening…", pausedS:"Paused", idle:"Tap to talk",
-    welcomeH:"Welcome! I'm Nasser, your smart assistant at Dar al-Athar al-Islamiyyah.",
+    speaking:"Zaid is speaking…", listening:"Zaid is listening…", pausedS:"Paused", idle:"Tap to talk",
+    welcomeH:"Welcome! I'm Zaid, your smart assistant at Dar al-Athar al-Islamiyyah.",
     welcome:"Ask me about Ihsan: The Making of Beauty in Mosques, or scan the code of any piece to learn about it.",
     micReply:"I'm listening. Pick a question, or scan a piece's code to begin.", micDenied:"The mic is blocked for this site. Tap the lock icon next to the address, allow the microphone, then try again.", micNone:"I didn't hear anything. Tap the mic and speak right after.", micFrame:"The mic can't work inside this preview. Open the link directly in Safari or Chrome.", micSiri:"To use voice on iPhone: Settings › General › Keyboard › turn on Dictation, then try again.", micService:"Speech recognition isn't available in this browser. Try Chrome or Safari.", micNet:"Speech recognition needs an internet connection.",
     scannedChip:"Piece code", processing:"Processing",
@@ -1454,9 +1456,9 @@ const T = {
     camIdle:"Point the camera at the QR code and it will be read automatically",
     reading:"Reading the code…", noCode:"No QR code found in the photo. Try again, closer to the code.",
     takePhoto:"Attach a photo of the code", demoScan:"Try without a camera", currency:"KWD",
-    fs:"Full screen", reset:"Start over", langLabel:"العربية", close:"Close", talk:"Talk to Nasser",
-    you:"You", nasser:"Nasser", stop:"Stop", objNo:"Object no.", price:"Price", acquire:"Available",
-    nasserLabel:"Nasser · Smart assistant", typeHere:"Type your question for Nasser…", send:"Send", typedReply:"Great question! In this version I answer the suggested questions only.", nasserMedium:"Speaking digital portrait, 2026", nasserNote:"Accompanies visitors and answers their questions."
+    fs:"Full screen", reset:"Start over", langLabel:"العربية", close:"Close", talk:"Talk to Zaid",
+    you:"You", nasser:"Zaid", stop:"Stop", objNo:"Object no.", price:"Price", acquire:"Available",
+    nasserLabel:"Zaid · Smart assistant", typeHere:"Type your question for Zaid…", send:"Send", typedReply:"Great question! In this version I answer the suggested questions only.", nasserMedium:"Speaking digital portrait, 2026", nasserNote:"Accompanies visitors and answers their questions."
   }
 };
 
@@ -1558,13 +1560,13 @@ const composerHTML = `<div class="composer" data-composer role="group">
   $(".c-send", f).addEventListener("click", e => { e.preventDefault(); send(); });
   inp.addEventListener("keydown", e => { if (e.key === "Enter" && !e.isComposing){ e.preventDefault(); send(); } });
 })();
-/* pause/mute sit small beside Nasser on every screen; the composer carries the mic */
+/* pause/mute sit small beside Zaid on every screen; the composer carries the mic */
 (() => {
   const voice = $("[data-voice]"), stage = $("[data-stage]");
   if (!voice || !stage) return;
   const home = document.createComment("voice-home"); voice.before(home);
   const place = () => { if (voice.parentNode !== stage) stage.appendChild(voice); };
-  // keep the small controls and the speaking pill at Nasser's feet, whatever sits below him in the stage
+  // keep the small controls and the speaking pill at Zaid's feet, whatever sits below him in the stage
   const fit = () => { const n = $("#avatar .nasser"); if (!n) return;
     const sr = stage.getBoundingClientRect(), nr = n.getBoundingClientRect();
     let floor = nr.bottom;
@@ -1572,11 +1574,11 @@ const composerHTML = `<div class="composer" data-composer role="group">
       if (qr.top < floor && qr.bottom > nr.top + nr.height*0.5 && qr.right > nr.left && qr.left < nr.right) floor = qr.top; });
     stage.style.setProperty("--feet", Math.max(0, Math.round(sr.bottom - floor)) + "px");
     const rtl = document.documentElement.dir === "rtl";
-    const room = rtl ? nr.left - sr.left : sr.right - nr.right;   // space between Nasser and the stage's end edge
+    const room = rtl ? nr.left - sr.left : sr.right - nr.right;   // space between Zaid and the stage's end edge
     const side = room >= 62 ? room - 52 : Math.max(8, room + 8);
     stage.style.setProperty("--side", Math.round(side) + "px");
     stage.style.setProperty("--stagew", Math.round(sr.width) + "px");
-    // phones: tuck pause/mute into the top corner of the stage, just under the header, clear of Nasser's head and body
+    // phones: tuck pause/mute into the top corner of the stage, just under the header, clear of Zaid's head and body
     const hdr = $("header") || $(".top"); const hb = hdr ? hdr.getBoundingClientRect().bottom : sr.top;
     stage.style.setProperty("--vtop", Math.max(6, Math.round(hb - sr.top + 8)) + "px");
   };
@@ -1800,7 +1802,7 @@ const video = $("#nvideo");
 const CLIPS = { welcome:{ar:"welcome-phone.mp4"}, typed:{ar:"reply-typed-question.mp4"} };
 const clipOn = () => video && video.classList.contains("live");
 
-/* Clips come as "stacked alpha" MP4s: Nasser's colour on top, his cut-out (grey) underneath.
+/* Clips come as "stacked alpha" MP4s: Zaid's colour on top, his cut-out (grey) underneath.
    A small WebGL canvas puts the two together, so he stands on the page with no background, in every browser.
    The canvas sits exactly over the still portrait; each clip starts from the same pose as the still and
    morphs in and out of it, so the change is never seen. */
@@ -1888,7 +1890,7 @@ function alphaGL(cv, withShadow){
   };
 }
 /* A clip can be wider than the still (room for open hands): the canvas keeps the still's height and grows sideways
-   around its centre, so Nasser stays the same size and in the same place. The light-from-the-left shading is
+   around its centre, so Zaid stays the same size and in the same place. The light-from-the-left shading is
    re-mapped to the wider box so it falls on him exactly as on the still. */
 function shadeFor(w){
   const id = "nShadeW" + Math.round(w * 10);
@@ -1969,7 +1971,7 @@ function playClip(src){
   });
   return true;
 }
-// "Nasser is speaking" follows the clip itself: when a clip-only answer is not actually playing (blocked, stalled, ended
+// "Zaid is speaking" follows the clip itself: when a clip-only answer is not actually playing (blocked, stalled, ended
 // without an event), the indicator and the pause button go back to rest within about two seconds
 let wdT = -1, wdN = 0;
 setInterval(() => {
@@ -1998,7 +2000,7 @@ function speak(text, src){
   const step = () => {
     if (S.paused) return;
     const L = m.text[lang].length;
-    // with a live clip the text keeps pace with Nasser's voice and ends with the clip
+    // with a live clip the text keeps pace with Zaid's voice and ends with the clip
     // the text runs at a brisk reading pace (and never behind the voice); it settles when the clip ends
     if (clipOn() && video.duration > 0) m.pos = video.ended ? L : Math.max(m.pos, Math.min(L - 1, Math.max(Math.floor(L * video.currentTime / video.duration), Math.floor((performance.now() - m.t0) * .05))));
     else m.pos = Math.min(L, m.pos + 3);
@@ -2341,7 +2343,7 @@ function runScanFlow(){
   setTimeout(() => {
     S.history = S.history.filter(m => m!==typing);
     push({type:"product", pid:S.nextPid || PRODUCT.id});
-    // Nasser names the piece; pause/mute work on the clip
+    // Zaid names the piece; pause/mute work on the clip
     if (playClip(useP(S.nextPid || PRODUCT.id).video)){ S.speaking = {msg:null, timer:null}; renderControls(); }
     document.dispatchEvent(new CustomEvent("ihsan:product"));
   }, 1700);
@@ -2435,7 +2437,7 @@ var introOn = !!C.intro && matchMedia("(orientation:landscape)").matches && !/[?
   if (typeof introOn !== "undefined" && introOn) return;
   const go = () => { if (done || S.speaking || S.history.length > 1) return; done = true; if (playClip(CLIPS.welcome)){ S.speaking = {msg:null, timer:null}; renderControls(); } };
   // phone (portrait): the same opening ground as the laptop (background, drifting star lattice, Ihsan logo) waits for a touch,
-  // so Nasser's welcome starts with his voice
+  // so Zaid's welcome starts with his voice
   if (video && CLIPS.welcome[lang] && !/[?&]nointro/.test(location.search)){
     const W = CLIPS.welcome[lang];
     fetch(W).then(r => r.blob()).then(b => { if (!BLOBS.has(W)) BLOBS.set(W, URL.createObjectURL(b)); }).catch(() => {});
@@ -2463,16 +2465,16 @@ var introOn = !!C.intro && matchMedia("(orientation:landscape)").matches && !/[?
   }
 })();
 
-/* ---------- laptop opening: logo → Nasser's intro video → the app fades in ---------- */
-const INTRO = { video:"welcome-landscape.mp4", qr:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAYwAAAGMAQAAAADhQqjnAAACrklEQVR4Xu1cW07EMBBLEP/ZG3D/Y3GD5gSD5tl0+XL5QY0thEJpVcXrzriTyXZpIOYHeEFrjZegIGMoyBiKpzHWCy+lQn/P7oPebXA54WnTB8HpozDGhjh0PLt8h650MOzgegJJhrG5LD+dMFXVOGI8pLcmdlBmd8O2nLA5Y5w+il+MDdFQdmh+FBFNl5ZAF5BkFGTsiqn5UXU1RM3YEInwViBjKDZnLHJlVTA8UTpkvkxyKrKlxLE5Y5w+CmNsxnvjebFZ/f4l4fkvJ5BkFJszpnFsLcPqOH2+Gn4rYlzrtJszxunD0JKFmS71XcMCl/3oEYnjMXYcJBnF5oyFxsKAma68Gqbhy//0+lj9ixqDQY2lqLLcGnFsjW/1FsA4trtg/vC8zK42LEv9vn4U2TPr/Cm0P9wFAO+C4t8yFtmwimA+qKWlMmll2Jgr0c9++9C3OC53+KsB8xeBlBw9v4Eag/Huu5Y3ylBXvmCm+SfJKDZn7MyVl6jldQxzYlXZSLFtzhinjyJ6e1xO/UvTZSyC28r4uVjpkmOyoMZwlA1bXP15MEqyVSvTTMoHGcXmjF1qsG7APGS59qIemxmTGmMcQx+wVuuV47CORO0Vs2XKaBqL9UpbtWSupFW49Yhl4PI+sYpgWcE4bZiHMtb5d098N+JYlFsLKaQ8vqbLWLi8cRdeguJpjK3bjuS71+4k74ONnUpu+7Uk+7Tpg+D0UVgfbO0WadoH6xvf1IPlcW8qox+jH7sVYZb3yqVtrGxYGLNaFmftgnEMxnvk1/5q68Go3SLVjBGdGCQZBtPrBb6Bt4pjKqzXuVBuVo2Modicsfd9SYH58j28jj6Opc9/c8Y4fRSmsaXEGrbft4qn0kxgqjqaXoZxVGGtxVcNAOB3Q8G48bnwEhRkDMWTGPsBf0LwbIaT3tQAAAAASUVORK5CYII=", moveAt:11.9,   // seconds into the clip: «لتأخذني معك في جولتك» → he steps to his place and the QR comes in
+/* ---------- laptop opening: logo → Zaid's intro video → the app fades in ---------- */
+const INTRO = { video:"welcome-landscape.mp4", qr:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAYwAAAGMAQAAAADhQqjnAAACrklEQVR4Xu1cW07EMBBLEP/ZG3D/Y3GD5gSD5tl0+XL5QY0thEJpVcXrzriTyXZpIOYHeEFrjZegIGMoyBiKpzHWCy+lQn/P7oPebXA54WnTB8HpozDGhjh0PLt8h650MOzgegJJhrG5LD+dMFXVOGI8pLcmdlBmd8O2nLA5Y5w+il+MDdFQdmh+FBFNl5ZAF5BkFGTsiqn5UXU1RM3YEInwViBjKDZnLHJlVTA8UTpkvkxyKrKlxLE5Y5w+CmNsxnvjebFZ/f4l4fkvJ5BkFJszpnFsLcPqOH2+Gn4rYlzrtJszxunD0JKFmS71XcMCl/3oEYnjMXYcJBnF5oyFxsKAma68Gqbhy//0+lj9ixqDQY2lqLLcGnFsjW/1FsA4trtg/vC8zK42LEv9vn4U2TPr/Cm0P9wFAO+C4t8yFtmwimA+qKWlMmll2Jgr0c9++9C3OC53+KsB8xeBlBw9v4Eag/Huu5Y3ylBXvmCm+SfJKDZn7MyVl6jldQxzYlXZSLFtzhinjyJ6e1xO/UvTZSyC28r4uVjpkmOyoMZwlA1bXP15MEqyVSvTTMoHGcXmjF1qsG7APGS59qIemxmTGmMcQx+wVuuV47CORO0Vs2XKaBqL9UpbtWSupFW49Yhl4PI+sYpgWcE4bZiHMtb5d098N+JYlFsLKaQ8vqbLWLi8cRdeguJpjK3bjuS71+4k74ONnUpu+7Uk+7Tpg+D0UVgfbO0WadoH6xvf1IPlcW8qox+jH7sVYZb3yqVtrGxYGLNaFmftgnEMxnvk1/5q68Go3SLVjBGdGCQZBtPrBb6Bt4pjKqzXuVBuVo2Modicsfd9SYH58j28jj6Opc9/c8Y4fRSmsaXEGrbft4qn0kxgqjqaXoZxVGGtxVcNAOB3Q8G48bnwEhRkDMWTGPsBf0LwbIaT3tQAAAAASUVORK5CYII=", moveAt:6.3,   // seconds into the clip: «امسح الرمز لأرافقك على هاتفك» → he steps to his place and the QR comes in
   scan:{ar:"امسح الرمز بهاتفك…<br>أو ابقَ هنا واسألني ما تشاء.", en:"Scan the code with your phone…<br>or stay here and ask me anything."},
-  line:{ar:"مرحبًا بك! أنا ناصر، مساعدك الذكي في دار الآثار الإسلامية. امسح الرمز لأرافقك على هاتفك، أو اسألني هنا مباشرة.",
-        en:"Welcome! I'm Nasser, your smart guide at Dar al-Athar al-Islamiyyah. Scan the code to take me on your phone, or ask me right here."} };
-// the opening's QR stays in the app on a laptop / kiosk: above the voice controls, between the chat and Nasser
+  line:{ar:"مرحبًا بك! أنا زيد، مساعدك الذكي في دار الآثار الإسلامية. امسح الرمز لأرافقك على هاتفك، أو اسألني هنا مباشرة.",
+        en:"Welcome! I'm Zaid, your smart guide at Dar al-Athar al-Islamiyyah. Scan the code to take me on your phone, or ask me right here."} };
+// the opening's QR stays in the app on a laptop / kiosk: above the voice controls, between the chat and Zaid
 (() => {
   const q = document.createElement("figure"); q.className = "app-qr";
   const cap = () => lang === "ar" ? "امسح الرمز<br>لتأخذني معك" : "Scan to take<br>me with you";
-  q.innerHTML = `<img src="${INTRO.qr}" alt="${lang === "ar" ? "رمز QR لفتح ناصر على هاتفك" : "QR code to open Nasser on your phone"}"><figcaption>${cap()}</figcaption>`;
+  q.innerHTML = `<img src="${INTRO.qr}" alt="${lang === "ar" ? "رمز QR لفتح زيد على هاتفك" : "QR code to open Zaid on your phone"}"><figcaption>${cap()}</figcaption>`;
   document.body.appendChild(q);
   const wide = matchMedia("(min-width:900px) and (orientation:landscape), (min-width:1101px), (orientation:landscape) and (max-height:540px)");
   const place = () => {
@@ -2480,7 +2482,7 @@ const INTRO = { video:"welcome-landscape.mp4", qr:"data:image/png;base64,iVBORw0
     if (!wide.matches || !t || !a){ q.hidden = true; return; }
     window.ihsanShift && window.ihsanShift();
     const tr = t.getBoundingClientRect(), ar = a.getBoundingClientRect();
-    const side = tr.left < ar.left ? innerWidth - 16 - ar.right : ar.left - 16;   // open space on Nasser's far side
+    const side = tr.left < ar.left ? innerWidth - 16 - ar.right : ar.left - 16;   // open space on Zaid's far side
     const hdr = $(".top") || $("header"); const hb = hdr ? hdr.getBoundingClientRect().bottom : 60;
     const top = Math.max(hb + 28, ar.top + ar.height * .12);
     const railTop = rail ? rail.getBoundingClientRect().top : ar.top + ar.height * .6;
@@ -2514,14 +2516,14 @@ if (introOn){
   }).catch(() => {});
   let finished = false, fake = null;
   const N = $(".i-nasser", ov);
-  // Nasser is already standing in his app spot by the time the video ends, so the end only brings the screen in around him
+  // Zaid is already standing in his app spot by the time the video ends, so the end only brings the screen in around him
   const finish = () => {
     if (finished) return; finished = true; clearInterval(fake); try{ v.pause(); }catch(e){}
     ov.classList.add("landing");                                  // QR leaves, video hands over to the cut-out still
     if (!ov.classList.contains("placed")){ stepped = true; glide(reduce ? 1 : 700); }   // skipped early: still get him to his spot
     const hand = reduce ? 0 : (ov.classList.contains("moved") ? 500 : 750);
     setTimeout(() => {
-      // 1) hand over before anything else shows: the app's own Nasser (same spot, same look) takes his place in one frame
+      // 1) hand over before anything else shows: the app's own Zaid (same spot, same look) takes his place in one frame
       document.documentElement.classList.add("intro-handed");
       requestAnimationFrame(() => requestAnimationFrame(() => {
         ov.classList.add("handed");                               // the intro picture goes; its soft light stays and fades below
@@ -2531,7 +2533,7 @@ if (introOn){
           const ease = "cubic-bezier(.23,1,.32,1)";
           [[".top",0,-14],[".talk",-26,0],[".stage .qs",0,18],[".voicebar",0,0]].forEach(([sel,x,y],i) => { const el = $(sel); if (el)
             {
-            // rise in from wherever the element really stands (the cards sit shifted toward the chat with Nasser), so the
+            // rise in from wherever the element really stands (the cards sit shifted toward the chat with Zaid), so the
             // entrance ends exactly in place instead of landing at the unshifted spot and jumping over afterwards
             const t0 = getComputedStyle(el).translate, [bx, by] = (t0 && t0 !== "none" ? t0.split(" ") : []).concat(["0px", "0px"]);
             el.animate([{opacity:0, translate:`calc(${bx} + ${x}px) calc(${by} + ${y}px)`},{opacity:1, translate:`${bx} ${by}`}], {duration:1000, delay:150 + i*160, easing:ease, fill:"backwards"}); } });
@@ -2543,17 +2545,17 @@ if (introOn){
   };
 
   const progress = () => {};
-  // Nasser glides from the middle of the screen to exactly where he stands in the app
-  let G = null;   // where Nasser was sent: his app spot, lowered so the hem meets the bottom of the screen
+  // Zaid glides from the middle of the screen to exactly where he stands in the app
+  let G = null;   // where Zaid was sent: his app spot, lowered so the hem meets the bottom of the screen
   const glide = (ms) => {
     const target = $("#avatar .nasser"), from = N.getBoundingClientRect(), to = target && target.getBoundingClientRect();
     if (!to || !to.width) return;
     const k = to.height / from.height, dx = (to.left + to.width/2) - (from.left + from.width/2), dy = to.bottom - from.bottom;
     const drop = 0;   // he stands exactly in his app spot; the robe below the picture reaches the screen edge
     G = {k, dx, dy, drop};
-    // the shadows are drawn before the scale, so size them up by 1/k: once placed they match the app's Nasser exactly
+    // the shadows are drawn before the scale, so size them up by 1/k: once placed they match the app's Zaid exactly
     const f = `url(#nShade) drop-shadow(${16/k}px ${10/k}px ${18/k}px rgba(3,30,28,.38)) drop-shadow(${4/k}px ${4/k}px ${6/k}px rgba(3,30,28,.25))`;
-    $$("video,img,canvas", N).forEach(el => el.style.setProperty("filter", "none", "important"));
+    $$("video,canvas", N).forEach(el => el.style.setProperty("filter", "none", "important"));
     const fig = $(".i-fig", N); if (fig) fig.style.filter = f.replace(/^url\([^)]*\)\s*/, "");
     N.style.transformOrigin = "50% 100%";
     G.anim = N.animate([{transform:"none"}, {transform:`translate(${dx}px,${dy + drop}px) scale(${k})`}], {duration:ms, easing:"cubic-bezier(.65,0,.35,1)", fill:"forwards"});
@@ -2561,7 +2563,7 @@ if (introOn){
     // the QR sits in the middle of the free side, where the chat will appear
     const q = $(".i-qr", ov), L = to.left, R = innerWidth - to.right;
     q.style.cssText = "position:fixed;margin:0;grid-area:auto";
-    const cx = L >= R ? L * .63 : innerWidth - R * .63;          // a little nearer Nasser than the middle of the free side
+    const cx = L >= R ? L * .63 : innerWidth - R * .63;          // a little nearer Zaid than the middle of the free side
     q.style.left = (cx - q.offsetWidth/2) + "px"; q.style.top = (innerHeight * .53 - q.offsetHeight/2) + "px";
   };
   const qrOn = () => $(".i-qr", ov).classList.add("on");
@@ -2613,18 +2615,18 @@ if (introOn){
     // unlock the sound inside the tap with a play/pause in the same moment: no seek, so the decoder never has to restart
     iprime = true; v.muted = false; v.volume = 0;
     try{ const pp = v.play(); v.pause(); if (pp && pp.catch) pp.catch(() => {}); }catch(e){}
-    // the logo holds while the screen goes full, then gives way; Nasser comes in and speaks as he arrives
+    // the logo holds while the screen goes full, then gives way; Zaid comes in and speaks as he arrives
     const HOLD = reduce ? 0 : 1600, SPEAK = reduce ? 200 : 500;   // the logo stays a full second longer after the tap
     setTimeout(() => {
       ov.classList.add("play");
       setTimeout(() => { iprime = false; v.volume = 1; playVideo(); }, SPEAK);
     }, HOLD);
   };
-  // the logo holds for a moment, then Nasser starts on his own (later: when the kiosk sees someone)
+  // the logo holds for a moment, then Zaid starts on his own (later: when the kiosk sees someone)
   const soundOK = (() => { try{ return navigator.getAutoplayPolicy && navigator.getAutoplayPolicy("mediaelement") === "allowed"; }catch(e){ return false; } })();
   if (soundOK) setTimeout(start, reduce ? 300 : 3600);
   else {
-    // browsers only let a page speak after a touch: the logo waits for one, then Nasser starts with his voice
+    // browsers only let a page speak after a touch: the logo waits for one, then Zaid starts with his voice
     const hint = document.createElement("p"); hint.className = "i-tap"; hint.textContent = lang === "ar" ? "المس الشاشة للبدء" : "Touch the screen to begin";
     $(".i-logo", ov).appendChild(hint);
     const go = () => { removeEventListener("pointerdown", go, true); removeEventListener("keydown", go, true); hint.remove(); start(); };
@@ -2696,7 +2698,7 @@ document.addEventListener("keydown", e => {
   const L=document.documentElement.dataset; 
   const place=()=>{ window.ihsanShift && window.ihsanShift();
     const t=document.querySelector(".talk").getBoundingClientRect(), a=document.querySelector(".arch").getBoundingClientRect();
-    // Nasser has moved toward the chat: the rail sits in the open space on his other side, between him and the screen edge
+    // Zaid has moved toward the chat: the rail sits in the open space on his other side, between him and the screen edge
     const x = t.left < a.left ? (a.right+innerWidth-16)/2 : (a.left+16)/2;
     vb.style.left=Math.round(x)+"px"; vb.style.top=Math.round(a.top+a.height*0.6)+"px";
     vb.querySelectorAll(".vb-btn").forEach(b=>{ const l=b.textContent.trim(); if(l) b.title=l, b.setAttribute("aria-label",l); }); };
