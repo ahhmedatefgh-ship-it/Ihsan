@@ -897,7 +897,7 @@ html[dir="ltr"] .thread>.m:not(.first){transform-origin:100% 100%} html[dir="ltr
   html.kbfix .top,html.kbfix [data-stage]{opacity:0;pointer-events:none}   /* Zaid steps aside the moment the field is touched */
   /* the sheet rises the same way; while the keyboard is up it drops the live blur (re-blurring a moving sheet every
      frame stuttered on the iPhone) and uses the same colour solid */
-  html.kb .sheet.on{transform:translate3d(0,calc(-1 * var(--kb-fix,0px)),0);max-height:var(--kb-maxh,92dvh);
+  html.kb .sheet.on{transform:translate3d(0,calc(-1 * var(--kb-fix-sheet,0px)),0);max-height:var(--kb-maxh,92dvh);
     transition:transform .5s cubic-bezier(.2,1.18,.32,1)!important;
     -webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:linear-gradient(168deg,rgba(255,255,255,.12),rgba(255,255,255,.02) 36%),#155553!important;will-change:transform}
   html.kb body:has(.sheet.on) .composer{opacity:0;pointer-events:none}   /* the bar must not peek out under a raised sheet */
@@ -3535,9 +3535,21 @@ const kbFreeze = () => {                                               // the ch
   R.setProperty("--comp-l", (c.left - t.left - bl).toFixed(2) + "px"); R.setProperty("--comp-r", (t.right - c.right - br).toFixed(2) + "px");
   D.classList.add("kbfix"); return true;
 };
-const kbRise = (fix, vvH) => {
+// The lift is MEASURED, not computed from innerHeight: on the iPhone (iOS 26) innerHeight flips between the full page and
+// the area above the keyboard while the page scrolls under it (seen in his ?kbdebug log), so the bar's real position is
+// read (minus the lift already applied, even mid-animation) and the lift is set so the bar ends just above the keyboard.
+const kbTY = el => { const m = el && getComputedStyle(el).transform; return m && m !== "none" ? new DOMMatrix(m).m42 : 0; };
+const kbRise = (visBottom, vvH) => {
   const D = document.documentElement, R = D.style;
-  R.setProperty("--kb-fix", Math.max(0, Math.round(fix)) + "px");
+  const talk = document.querySelector(".talk"), comp = document.querySelector(".composer"), sh = document.querySelector(".sheet.on");
+  if (D.classList.contains("kbfix") && talk && comp){
+    const natural = comp.getBoundingClientRect().bottom - kbTY(talk);          // where the bar would be with no lift
+    R.setProperty("--kb-fix", Math.round(natural - (visBottom - 10)) + "px");
+  }
+  if (sh){
+    const natural = sh.getBoundingClientRect().bottom - kbTY(sh);
+    R.setProperty("--kb-fix-sheet", Math.round(natural - visBottom) + "px");
+  }
   R.setProperty("--kb-maxh", Math.max(160, Math.round(vvH - kbExtra() - 16)) + "px");
   if (!D.classList.contains("kb")) requestAnimationFrame(() => D.classList.add("kb"));   // next frame: the card first stands still, then rises
 };
@@ -3560,22 +3572,33 @@ const setAppH = (fromTrack) => {
   const kb = !!vv && typing && h < appH0 - 120 && PHONE.matches;
   R.setProperty("--app-h", appH0 + "px"); R.setProperty("--app-top", "0px"); R.setProperty("--vv-h", Math.round(h) + "px");
   if (kb){
-    const fix = innerHeight - (Math.round(top + h) - kbExtra());   // from the layout bottom to just above everything iOS floats
+    const visBottom = Math.round(top + h) - kbExtra();            // lowest point still visible above the keyboard and what iOS floats on it
     const kh = appH0 - h; if (kh > 150 && kh < appH0 * .7){ kbGuess = kh; try{ localStorage.setItem("ihsan-kbh2", String(Math.round(kh))); }catch(e){} }
-    clearTimeout(kbOffT); if (document.activeElement.closest(".composer")) kbFreeze(); kbRise(fix, h);
+    clearTimeout(kbOffT); if (document.activeElement.closest(".composer")) kbFreeze(); kbRise(visBottom, h);
   } else if (!typing && (D.classList.contains("kb") || D.classList.contains("kbfix"))) kbSink();
   kbWas = kb || (kbWas && !typing && h < appH0 - 120);
-  if (top && typing) window.scrollTo(0, 0);
+  if (typing && PHONE.matches) kbNoScroll();
   if (fromTrack !== true && typing) kbTrack(600);
   if (KBDBG){ const sy = Math.round(window.scrollY || 0), row = `${Math.round(performance.now()) % 100000} ih${innerHeight} vh${Math.round(h)} vt${Math.round(top)} sy${sy} kb${kb ? 1 : 0} fix${getComputedStyle(D).getPropertyValue("--kb-fix").trim()}`;
     const key = row.replace(/^\d+ /, ""); if (kbLog.lastKey !== key){ kbLog.lastKey = key; kbLog.push(row); if (kbLog.length > 14) kbLog.shift(); }
     kbDebug({h, top, kb, visBottom: Math.round(top + h) - kbExtra(), typing}); }
 };
 // focus: start rising at once with the remembered keyboard height (first time on a phone: wait for the real one)
+// iPhone (Safari and Chrome — the same WebKit engine) scrolls the whole page to "show" the focused field, under our
+// own lift; the page never scrolls in this app, so while typing any page scroll is put straight back
+const kbNoScroll = () => {
+  const typing = document.activeElement && document.activeElement.matches && document.activeElement.matches("input,textarea");
+  if (!typing || !PHONE.matches) return;
+  if (window.scrollY || window.scrollX) window.scrollTo(0, 0);
+  const se = document.scrollingElement; if (se && se.scrollTop) se.scrollTop = 0;
+  if (document.body.scrollTop) document.body.scrollTop = 0;
+};
+addEventListener("scroll", kbNoScroll, {passive: true});
+document.addEventListener("scroll", kbNoScroll, {passive: true, capture: true});
 document.addEventListener("focusin", (e) => {
   if (!PHONE.matches || !e.target.matches || !e.target.matches("input,textarea")) return;
   clearTimeout(kbOffT); if (e.target.closest(".composer")) kbFreeze();
-  if (kbGuess > 0){ const vh = appH0 - kbGuess; kbRise(innerHeight - (vh - kbExtra()), vh); }
+  if (kbGuess > 0){ const vh = appH0 - kbGuess; kbRise(vh - kbExtra(), vh); }
   kbTrack(900);
   setTimeout(setAppH, 60);
   // no on-screen keyboard after all (hardware keyboard): settle back down
