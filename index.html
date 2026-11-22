@@ -3519,7 +3519,7 @@ function reset(){
 // With the keyboard up nothing is squeezed: the page keeps its full height, and only the chat panel, the composer and an
 // open sheet slide up by the keyboard's height (iPhone Safari also floats its address bar above the keyboard: clear it too)
 const IOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-let appH0 = 0, appW = innerWidth, kbWas = false;
+let appH0 = 0, appW = innerWidth, kbWas = false; let appShrinkOK = false, appShrinkT = 0;
 // Keyboard on phones. The rise starts the moment a field is focused (with the keyboard height remembered from last
 // time on this phone), so the chat travels together with the keyboard instead of waiting for it; the real height
 // corrects it as soon as the browser reports it.
@@ -3576,7 +3576,11 @@ const setAppH = (fromTrack) => {
   // keyboard is told apart by focus + a much shorter visible area); while the keyboard slides away it is kept, so
   // nothing shrinks and grows back; a new width (rotation) always takes a fresh measure
   if (innerWidth !== appW){ appW = innerWidth; if (!typing) appH0 = 0; }
-  if (!appH0 || (!typing && h >= appH0 - 120) || (!typing && !kbWas)) appH0 = Math.round(h);
+  // grows at once; shrinks only once the screen has stood still (the keyboard sliding away reports in-between heights
+  // 449 → 520 → 600 → 680 → … → 796, and following them made Zaid shrink and jump back after «إنشاء»)
+  if (!appH0 || (!typing && h >= appH0) || (appShrinkOK && !typing)){ appH0 = Math.round(h); appShrinkOK = false; clearTimeout(appShrinkT); }
+  else if (!typing && h < appH0 && !(kbWas && h < appH0 - 120)){ clearTimeout(appShrinkT);
+    appShrinkT = setTimeout(() => { const a = document.activeElement; if (a && a.matches && a.matches("input,textarea")) return; appShrinkOK = true; setAppH(); }, 450); }
   const kb = !!vv && typing && h < appH0 - 120 && PHONE.matches;
   R.setProperty("--app-h", appH0 + "px"); R.setProperty("--app-top", "0px"); R.setProperty("--vv-h", Math.round(h) + "px");
   if (kb){
