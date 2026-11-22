@@ -3520,7 +3520,7 @@ let appH0 = 0, appW = innerWidth, kbWas = false;
 // time on this phone), so the chat travels together with the keyboard instead of waiting for it; the real height
 // corrects it as soon as the browser reports it.
 const PHONE = matchMedia("(max-width:899px) and (orientation:portrait), (max-width:899px) and (min-height:541px), (orientation:portrait) and (max-width:1100px)");
-let kbGuess = 0; try{ kbGuess = +localStorage.getItem("ihsan-kbfix") || 0; }catch(e){}
+let kbGuess = 0; try{ kbGuess = +localStorage.getItem("ihsan-kbh2") || 0; }catch(e){}   // last keyboard height on this phone
 let kbOffT = 0;
 const kbExtra = () => IOS && !navigator.standalone ? 54 : 12;          // iPhone Safari floats its address bar above the keyboard
 const kbFreeze = () => {                                               // the chat card and its bar, measured exactly where they stand now
@@ -3545,7 +3545,11 @@ const kbSink = () => {
   const D = document.documentElement; D.classList.remove("kb");
   clearTimeout(kbOffT); kbOffT = setTimeout(() => { if (!D.classList.contains("kb")) D.classList.remove("kbfix"); }, 380);
 };
-const setAppH = () => {
+let kbTrackUntil = 0, kbTrackOn = false;
+const kbTrack = (ms) => { kbTrackUntil = Math.max(kbTrackUntil, performance.now() + ms); if (kbTrackOn) return; kbTrackOn = true;
+  const step = () => { setAppH(true); if (performance.now() < kbTrackUntil) requestAnimationFrame(step); else kbTrackOn = false; }; requestAnimationFrame(step); };
+const kbLog = [];
+const setAppH = (fromTrack) => {
   const vv = window.visualViewport, h = (vv && vv.height) || innerHeight, top = vv ? vv.offsetTop : 0;
   const D = document.documentElement, R = D.style, typing = !!document.activeElement && document.activeElement.matches("input,textarea");
   // the page height is measured while nobody types (iOS 26 shrinks even the layout viewport with the keyboard, so the
@@ -3557,18 +3561,22 @@ const setAppH = () => {
   R.setProperty("--app-h", appH0 + "px"); R.setProperty("--app-top", "0px"); R.setProperty("--vv-h", Math.round(h) + "px");
   if (kb){
     const fix = innerHeight - (Math.round(top + h) - kbExtra());   // from the layout bottom to just above everything iOS floats
-    kbGuess = fix; try{ localStorage.setItem("ihsan-kbfix", String(Math.round(fix))); }catch(e){}
+    const kh = appH0 - h; if (kh > 150 && kh < appH0 * .7){ kbGuess = kh; try{ localStorage.setItem("ihsan-kbh2", String(Math.round(kh))); }catch(e){} }
     clearTimeout(kbOffT); if (document.activeElement.closest(".composer")) kbFreeze(); kbRise(fix, h);
   } else if (!typing && (D.classList.contains("kb") || D.classList.contains("kbfix"))) kbSink();
   kbWas = kb || (kbWas && !typing && h < appH0 - 120);
   if (top && typing) window.scrollTo(0, 0);
-  if (KBDBG) kbDebug({h, top, kb, visBottom: Math.round(top + h) - kbExtra(), typing});
+  if (fromTrack !== true && typing) kbTrack(600);
+  if (KBDBG){ const sy = Math.round(window.scrollY || 0), row = `${Math.round(performance.now()) % 100000} ih${innerHeight} vh${Math.round(h)} vt${Math.round(top)} sy${sy} kb${kb ? 1 : 0} fix${getComputedStyle(D).getPropertyValue("--kb-fix").trim()}`;
+    const key = row.replace(/^\d+ /, ""); if (kbLog.lastKey !== key){ kbLog.lastKey = key; kbLog.push(row); if (kbLog.length > 14) kbLog.shift(); }
+    kbDebug({h, top, kb, visBottom: Math.round(top + h) - kbExtra(), typing}); }
 };
 // focus: start rising at once with the remembered keyboard height (first time on a phone: wait for the real one)
 document.addEventListener("focusin", (e) => {
   if (!PHONE.matches || !e.target.matches || !e.target.matches("input,textarea")) return;
   clearTimeout(kbOffT); if (e.target.closest(".composer")) kbFreeze();
-  if (kbGuess > 0) kbRise(kbGuess, innerHeight - kbGuess + kbExtra());
+  if (kbGuess > 0){ const vh = appH0 - kbGuess; kbRise(innerHeight - (vh - kbExtra()), vh); }
+  kbTrack(900);
   setTimeout(setAppH, 60);
   // no on-screen keyboard after all (hardware keyboard): settle back down
   setTimeout(() => { const vv = window.visualViewport; if (vv && vv.height >= appH0 - 120 && document.documentElement.classList.contains("kb")) kbSink(); }, 1200);
@@ -3580,6 +3588,7 @@ const kbDebug = (o) => {
   if (!el){ el = document.createElement("pre"); el.id = "kbdbg"; el.style.cssText = "position:fixed;z-index:99999;top:4px;left:4px;margin:0;padding:6px 8px;font:11px/1.35 monospace;color:#0f0;background:rgba(0,0,0,.8);border-radius:8px;pointer-events:none;direction:ltr;text-align:left"; document.body.appendChild(el); }
   const r = s => { const e = document.querySelector(s); if (!e) return "-"; const b = e.getBoundingClientRect(); return Math.round(b.top) + "→" + Math.round(b.bottom); };
   el.textContent = `inner ${innerWidth}×${innerHeight}  vv.h ${Math.round(o.h)} vv.top ${Math.round(o.top)}\nappH0 ${appH0}  typing ${o.typing}  kb ${o.kb}\nvisBottom ${o.visBottom}  fix ${getComputedStyle(document.documentElement).getPropertyValue("--kb-fix")}\ntalk ${r(".talk")}  composer ${r(".composer")}\nsheet ${r(".sheet.on")}  ua ${IOS ? "iOS" : "other"}`;
+  el.textContent += "\n— log —\n" + kbLog.join("\n");
 };
 document.addEventListener("focusout", () => { setTimeout(() => { if (!document.activeElement || !document.activeElement.matches("input,textarea")) kbSink(); setAppH(); }, 40); setTimeout(() => { kbWas = false; setAppH(); }, 900); });
 if (KBDBG) setInterval(setAppH, 250);
