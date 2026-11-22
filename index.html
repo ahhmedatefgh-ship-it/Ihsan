@@ -901,7 +901,7 @@ html[dir="ltr"] .thread>.m:not(.first){transform-origin:100% 100%} html[dir="ltr
   html.kb .sheet.on{transform:translate3d(0,calc(-1 * var(--kb-fix-sheet,0px)),0);max-height:var(--kb-maxh,92dvh);
     transition:transform .5s cubic-bezier(.2,1.18,.32,1)!important;
     -webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:linear-gradient(168deg,rgba(255,255,255,.12),rgba(255,255,255,.02) 36%),#155553!important;will-change:transform}
-  html.kb body:has(.sheet.on) .composer{opacity:0;pointer-events:none}   /* the bar must not peek out under a raised sheet */
+  html.kb body:has(.sheet.on) .composer,html.kb body:has(.sheet.on) .talk{opacity:0;pointer-events:none}   /* the bar must not peek out under a raised sheet */
   html.kbfix .sheet.on{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:linear-gradient(168deg,rgba(255,255,255,.12),rgba(255,255,255,.02) 36%),#155553!important}
   .qs{display:none!important}
   .talk{margin-top:6px}
@@ -3603,12 +3603,23 @@ addEventListener("scroll", kbNoScroll, {passive: true});
 document.addEventListener("scroll", kbNoScroll, {passive: true, capture: true});
 let kbTapEl = null, kbTapT = 0;
 document.addEventListener("pointerdown", (e) => { kbTapEl = e.target; kbTapT = performance.now(); }, true);
+// iPhone: a tap on a field normally makes WebKit scroll the whole page to "show" it before our lift starts (the jumble in
+// his 16:25 recording). The tap is taken over: the field is focused by us, inside the same tap (so the keyboard still
+// opens) but with preventScroll, and the lift starts in the same moment.
+document.addEventListener("touchend", (e) => {
+  if (!PHONE.matches || !IOS) return;
+  const el = e.target && e.target.closest && e.target.closest("input,textarea");
+  if (!el || el.disabled || el.readOnly || document.activeElement === el) return;   // already typing: leave caret taps alone
+  e.preventDefault(); kbTapEl = el; kbTapT = performance.now();
+  try{ el.focus({preventScroll: true}); }catch(err){ el.focus(); }
+}, {passive: false, capture: true});
 document.addEventListener("focusin", (e) => {
   if (!PHONE.matches || !e.target.matches || !e.target.matches("input,textarea")) return;
   const tapped = kbTapEl && (kbTapEl === e.target || e.target.contains(kbTapEl) || (kbTapEl.closest && kbTapEl.closest("label,.composer") && kbTapEl.closest("label,.composer").contains(e.target))) && performance.now() - kbTapT < 800;
   if (!tapped) return;                                                   // a scripted focus brings no keyboard: move nothing
   clearTimeout(kbOffT); if (e.target.closest(".composer")) kbFreeze();
-  if (kbGuess > 0){ const vh = appH0 - kbGuess; kbRise(vh - kbExtra(), vh); }
+  const guess = kbGuess > 0 ? kbGuess : (IOS ? Math.round(appH0 * .44) : 0);   // first time on an iPhone: a typical keyboard
+  if (guess > 0){ const vh = appH0 - guess; kbRise(vh - kbExtra(), vh); }
   kbTrack(900);
   setTimeout(setAppH, 60);
   // no on-screen keyboard after all (hardware keyboard): settle back down
