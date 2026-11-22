@@ -884,21 +884,24 @@ html[dir="ltr"] .thread>.m:not(.first){transform-origin:100% 100%} html[dir="ltr
 .qs-in{display:none}
 @media (max-width:899px) and (orientation:portrait), (max-width:899px) and (min-height:541px), (orientation:portrait) and (max-width:1100px){
   .page{grid-template-rows:auto minmax(0,54fr) 0 minmax(0,46fr)!important}
-  /* keyboard up: Zaid stays in view, smaller, and the chat keeps room above the keyboard */
-  /* keyboard up: the layout stays as it is; the chat panel and the composer slide up above the keyboard */
-  /* (the composer is fixed inside the chat panel, so the panel moves with a relative offset, not a transform,
-     which would make it the composer's container) */
-  .talk{position:relative;top:0;transition:top .28s cubic-bezier(.23,1,.32,1)} .composer{transition:transform .28s cubic-bezier(.23,1,.32,1)}
-  html.kb .talk{top:calc(-1 * var(--kb-lift,0px));z-index:20}
+  /* keyboard up (html.kbfix → html.kb): the chat panel and its composer become ONE fixed card, exactly where they were,
+     and rise above the keyboard like a bubble — the same mechanism as the bottom sheets (fixed + translateY), which is
+     what works on the iPhone. On send / close it sinks back, then returns to the page layout. */
   .top,[data-stage]{transition:opacity .2s ease} html.kb .top,html.kb [data-stage]{opacity:0;pointer-events:none}   /* no half robe peeking out under the chat */
-  /* while typing, the composer hangs right under the chat panel (absolute, not fixed: iPhone Safari loses fixed bars
-     that are moved while the keyboard is up), so it always travels with the panel above the keyboard */
-  html.kb .talk{overflow:visible!important}
-  html.kb .composer{position:absolute!important;left:0!important;right:0!important;top:calc(100% + 6px)!important;bottom:auto!important;transform:none!important;margin:0!important}
-  /* the sheet rises in one GPU move; while the keyboard is up it drops the live blur (re-blurring a moving sheet every
-     frame is what stuttered on the iPhone) and uses the same colour solid */
-  html.kb .sheet.on{transform:translateY(calc(-1 * var(--kb-fix,0px)));max-height:calc(var(--vv-h,100dvh) - 74px);
+  html.kbfix .talk{position:fixed!important;left:var(--talk-l,10px)!important;right:var(--talk-r,10px)!important;top:auto!important;bottom:var(--talk-b,70px)!important;
+    height:min(var(--talk-h0,50vh),calc(var(--kb-maxh,100vh) - var(--comp-space,60px)))!important;max-height:none!important;margin:0!important;z-index:60;overflow:visible!important;
+    transform:translate3d(0,0,0);will-change:transform;
+    transition:transform .34s cubic-bezier(.4,0,.2,1),height .34s cubic-bezier(.4,0,.2,1)}
+  html.kbfix.kb .talk{transform:translate3d(0,calc(-1 * var(--kb-fix,0px)),0);transition:transform .5s cubic-bezier(.2,1.18,.32,1),height .5s cubic-bezier(.2,1,.32,1)}
+  html.kbfix .composer{position:absolute!important;left:var(--comp-l,0px)!important;right:var(--comp-r,0px)!important;top:calc(100% + var(--comp-gap,6px))!important;bottom:auto!important;transform:none!important;margin:0!important}
+  html.kbfix .top,html.kbfix [data-stage]{opacity:0;pointer-events:none}   /* Zaid steps aside the moment the field is touched */
+  /* the sheet rises the same way; while the keyboard is up it drops the live blur (re-blurring a moving sheet every
+     frame stuttered on the iPhone) and uses the same colour solid */
+  html.kb .sheet.on{transform:translate3d(0,calc(-1 * var(--kb-fix,0px)),0);max-height:var(--kb-maxh,92dvh);
+    transition:transform .5s cubic-bezier(.2,1.18,.32,1)!important;
     -webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:linear-gradient(168deg,rgba(255,255,255,.12),rgba(255,255,255,.02) 36%),#155553!important;will-change:transform}
+  html.kb body:has(.sheet.on) .composer{opacity:0;pointer-events:none}   /* the bar must not peek out under a raised sheet */
+  html.kbfix .sheet.on{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:linear-gradient(168deg,rgba(255,255,255,.12),rgba(255,255,255,.02) 36%),#155553!important}
   .qs{display:none!important}
   .talk{margin-top:6px}
   .qs-in{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:12px 0 2px;padding:0;list-style:none}
@@ -3513,7 +3516,35 @@ function reset(){
 // open sheet slide up by the keyboard's height (iPhone Safari also floats its address bar above the keyboard: clear it too)
 const IOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 let appH0 = 0, appW = innerWidth, kbWas = false;
-let talkNat = 0;                                                       // the chat panel's bottom with no keyboard (page coords)
+// Keyboard on phones. The rise starts the moment a field is focused (with the keyboard height remembered from last
+// time on this phone), so the chat travels together with the keyboard instead of waiting for it; the real height
+// corrects it as soon as the browser reports it.
+const PHONE = matchMedia("(max-width:899px) and (orientation:portrait), (max-width:899px) and (min-height:541px), (orientation:portrait) and (max-width:1100px)");
+let kbGuess = 0; try{ kbGuess = +localStorage.getItem("ihsan-kbfix") || 0; }catch(e){}
+let kbOffT = 0;
+const kbExtra = () => IOS && !navigator.standalone ? 54 : 12;          // iPhone Safari floats its address bar above the keyboard
+const kbFreeze = () => {                                               // the chat card and its bar, measured exactly where they stand now
+  const D = document.documentElement, R = D.style, talk = document.querySelector(".talk"), comp = document.querySelector(".composer");
+  if (!talk || !comp || D.classList.contains("kbfix")) return false;
+  const t = talk.getBoundingClientRect(), c = comp.getBoundingClientRect(), cs = getComputedStyle(talk);
+  const bl = parseFloat(cs.borderLeftWidth) || 0, br = parseFloat(cs.borderRightWidth) || 0, bb = parseFloat(cs.borderBottomWidth) || 0, btw = parseFloat(cs.borderTopWidth) || 0;   // absolute children are placed inside the border
+  // the card keeps its own size and place; the bar keeps hanging under it (outside the card's background), as on the page
+  R.setProperty("--talk-l", t.left.toFixed(2) + "px"); R.setProperty("--talk-r", (innerWidth - t.right).toFixed(2) + "px");
+  R.setProperty("--talk-b", (innerHeight - t.bottom).toFixed(2) + "px"); R.setProperty("--talk-h0", t.height.toFixed(2) + "px");
+  R.setProperty("--comp-gap", (c.top - t.bottom + bb).toFixed(2) + "px"); R.setProperty("--comp-space", (c.bottom - t.bottom).toFixed(2) + "px");
+  R.setProperty("--comp-l", (c.left - t.left - bl).toFixed(2) + "px"); R.setProperty("--comp-r", (t.right - c.right - br).toFixed(2) + "px");
+  D.classList.add("kbfix"); return true;
+};
+const kbRise = (fix, vvH) => {
+  const D = document.documentElement, R = D.style;
+  R.setProperty("--kb-fix", Math.max(0, Math.round(fix)) + "px");
+  R.setProperty("--kb-maxh", Math.max(160, Math.round(vvH - kbExtra() - 16)) + "px");
+  if (!D.classList.contains("kb")) requestAnimationFrame(() => D.classList.add("kb"));   // next frame: the card first stands still, then rises
+};
+const kbSink = () => {
+  const D = document.documentElement; D.classList.remove("kb");
+  clearTimeout(kbOffT); kbOffT = setTimeout(() => { if (!D.classList.contains("kb")) D.classList.remove("kbfix"); }, 380);
+};
 const setAppH = () => {
   const vv = window.visualViewport, h = (vv && vv.height) || innerHeight, top = vv ? vv.offsetTop : 0;
   const D = document.documentElement, R = D.style, typing = !!document.activeElement && document.activeElement.matches("input,textarea");
@@ -3522,32 +3553,35 @@ const setAppH = () => {
   // nothing shrinks and grows back; a new width (rotation) always takes a fresh measure
   if (innerWidth !== appW){ appW = innerWidth; if (!typing) appH0 = 0; }
   if (!appH0 || (!typing && h >= appH0 - 120) || (!typing && !kbWas)) appH0 = Math.round(h);
-  const kb = !!vv && typing && h < appH0 - 120;
-  R.setProperty("--app-h", appH0 + "px"); R.setProperty("--app-top", "0px");
-  const talk = document.querySelector(".talk"), comp = document.querySelector(".composer");
-  if (!D.classList.contains("kb") && talk) talkNat = talk.getBoundingClientRect().bottom;
-  // everything is placed from what is really visible: the bottom of the visual viewport (in the same coordinates as
-  // getBoundingClientRect), minus iPhone Safari's floating address bar, minus a small gap
-  const extra = IOS && !navigator.standalone ? 54 : 12;
-  const visBottom = Math.round(top + h) - extra;
-  const compH = comp ? comp.offsetHeight || 54 : 54;
-  R.setProperty("--kb-lift", (kb ? Math.max(0, Math.round(talkNat + 6 + compH - visBottom)) : 0) + "px");   // chat panel + composer under it
-  R.setProperty("--kb-fix", (kb ? Math.max(0, Math.round(innerHeight - visBottom)) : 0) + "px");            // bottom sheets (fixed)
-  R.setProperty("--vv-h", Math.round(h) + "px");
-  D.classList.toggle("kb", kb); kbWas = kb || (kbWas && !typing && h < appH0 - 120);
+  const kb = !!vv && typing && h < appH0 - 120 && PHONE.matches;
+  R.setProperty("--app-h", appH0 + "px"); R.setProperty("--app-top", "0px"); R.setProperty("--vv-h", Math.round(h) + "px");
+  if (kb){
+    const fix = innerHeight - (Math.round(top + h) - kbExtra());   // from the layout bottom to just above everything iOS floats
+    kbGuess = fix; try{ localStorage.setItem("ihsan-kbfix", String(Math.round(fix))); }catch(e){}
+    clearTimeout(kbOffT); if (document.activeElement.closest(".composer")) kbFreeze(); kbRise(fix, h);
+  } else if (!typing && (D.classList.contains("kb") || D.classList.contains("kbfix"))) kbSink();
+  kbWas = kb || (kbWas && !typing && h < appH0 - 120);
   if (top && typing) window.scrollTo(0, 0);
-  if (KBDBG) kbDebug({h, top, kb, visBottom, typing});
+  if (KBDBG) kbDebug({h, top, kb, visBottom: Math.round(top + h) - kbExtra(), typing});
 };
+// focus: start rising at once with the remembered keyboard height (first time on a phone: wait for the real one)
+document.addEventListener("focusin", (e) => {
+  if (!PHONE.matches || !e.target.matches || !e.target.matches("input,textarea")) return;
+  clearTimeout(kbOffT); if (e.target.closest(".composer")) kbFreeze();
+  if (kbGuess > 0) kbRise(kbGuess, innerHeight - kbGuess + kbExtra());
+  setTimeout(setAppH, 60);
+  // no on-screen keyboard after all (hardware keyboard): settle back down
+  setTimeout(() => { const vv = window.visualViewport; if (vv && vv.height >= appH0 - 120 && document.documentElement.classList.contains("kb")) kbSink(); }, 1200);
+});
 // ?kbdebug: live numbers on the phone itself, to see exactly what the browser reports while the keyboard is up
-const KBDBG = /[?&]kbdebug/.test(location.search);
+const KBDBG = /[?&#]kbdebug/.test(location.search + location.hash);
 const kbDebug = (o) => {
   let el = document.getElementById("kbdbg");
   if (!el){ el = document.createElement("pre"); el.id = "kbdbg"; el.style.cssText = "position:fixed;z-index:99999;top:4px;left:4px;margin:0;padding:6px 8px;font:11px/1.35 monospace;color:#0f0;background:rgba(0,0,0,.8);border-radius:8px;pointer-events:none;direction:ltr;text-align:left"; document.body.appendChild(el); }
   const r = s => { const e = document.querySelector(s); if (!e) return "-"; const b = e.getBoundingClientRect(); return Math.round(b.top) + "→" + Math.round(b.bottom); };
-  el.textContent = `inner ${innerWidth}×${innerHeight}  vv.h ${Math.round(o.h)} vv.top ${Math.round(o.top)}\nappH0 ${appH0}  typing ${o.typing}  kb ${o.kb}\nvisBottom ${o.visBottom}  lift ${getComputedStyle(document.documentElement).getPropertyValue("--kb-lift")} fix ${getComputedStyle(document.documentElement).getPropertyValue("--kb-fix")}\ntalk ${r(".talk")}  composer ${r(".composer")}\nsheet ${r(".sheet.on")}  ua ${IOS ? "iOS" : "other"}`;
+  el.textContent = `inner ${innerWidth}×${innerHeight}  vv.h ${Math.round(o.h)} vv.top ${Math.round(o.top)}\nappH0 ${appH0}  typing ${o.typing}  kb ${o.kb}\nvisBottom ${o.visBottom}  fix ${getComputedStyle(document.documentElement).getPropertyValue("--kb-fix")}\ntalk ${r(".talk")}  composer ${r(".composer")}\nsheet ${r(".sheet.on")}  ua ${IOS ? "iOS" : "other"}`;
 };
-document.addEventListener("focusout", () => { setTimeout(setAppH, 60); setTimeout(() => { kbWas = false; setAppH(); }, 900); });
-document.addEventListener("focusin", () => setTimeout(setAppH, 60));
+document.addEventListener("focusout", () => { setTimeout(() => { if (!document.activeElement || !document.activeElement.matches("input,textarea")) kbSink(); setAppH(); }, 40); setTimeout(() => { kbWas = false; setAppH(); }, 900); });
 if (KBDBG) setInterval(setAppH, 250);
 setAppH(); addEventListener("resize", setAppH); addEventListener("orientationchange", setAppH);
 if (window.visualViewport){ visualViewport.addEventListener("resize", setAppH); visualViewport.addEventListener("scroll", setAppH); }
