@@ -885,7 +885,14 @@ html[dir="ltr"] .thread>.m:not(.first){transform-origin:100% 100%} html[dir="ltr
 @media (max-width:899px) and (orientation:portrait), (max-width:899px) and (min-height:541px), (orientation:portrait) and (max-width:1100px){
   .page{grid-template-rows:auto minmax(0,54fr) 0 minmax(0,46fr)!important}
   /* keyboard up: Zaid stays in view, smaller, and the chat keeps room above the keyboard */
-  html.kb .page{grid-template-rows:auto minmax(0,40fr) 0 minmax(0,60fr)!important}
+  /* keyboard up: the layout stays as it is; the chat panel and the composer slide up above the keyboard */
+  /* (the composer is fixed inside the chat panel, so the panel moves with a relative offset, not a transform,
+     which would make it the composer's container) */
+  .talk{position:relative;top:0;transition:top .28s cubic-bezier(.23,1,.32,1)} .composer{transition:transform .28s cubic-bezier(.23,1,.32,1)}
+  html.kb .talk{top:calc(-1 * var(--kb-lift,0px));z-index:20}
+  .top,[data-stage]{transition:opacity .2s ease} html.kb .top,html.kb [data-stage]{opacity:0;pointer-events:none}   /* no half robe peeking out under the chat */
+  html.kb .composer{transform:translateY(calc(-1 * var(--kb-lift,0px)))}
+  html.kb .sheet.on{transform:translateY(calc(-1 * var(--kb-lift,0px)));max-height:calc(var(--app-h,100dvh) - var(--kb-lift,0px) - 20px)}
   .qs{display:none!important}
   .talk{margin-top:6px}
   .qs-in{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:12px 0 2px;padding:0;list-style:none}
@@ -3496,13 +3503,22 @@ function reset(){
 
 /* keep the page exactly as tall as the visible screen (iPhone toolbars change it) */
 // the page always fills exactly what is visible: with the keyboard up, iOS pans the page, so follow its offset too
+// With the keyboard up nothing is squeezed: the page keeps its full height, and only the chat panel, the composer and an
+// open sheet slide up by the keyboard's height (iPhone Safari also floats its address bar above the keyboard: clear it too)
+const IOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+let appH0 = 0;
 const setAppH = () => {
   const vv = window.visualViewport, h = (vv && vv.height) || innerHeight, top = vv ? vv.offsetTop : 0;
-  const R = document.documentElement.style;
-  R.setProperty("--app-h", Math.round(h) + "px"); R.setProperty("--app-top", Math.round(top) + "px");
-  document.documentElement.classList.toggle("kb", !!vv && innerHeight - h > 120);
+  const R = document.documentElement.style, kb = !!vv && innerHeight - h > 120 && !!document.activeElement && document.activeElement.matches("input,textarea");
+  if (!kb || !appH0) appH0 = kb ? innerHeight : Math.round(h);
+  R.setProperty("--app-h", appH0 + "px"); R.setProperty("--app-top", "0px");
+  const lift = kb ? Math.max(0, Math.round(appH0 - (top + h)) + (IOS && !navigator.standalone ? 46 : 8)) : 0;
+  R.setProperty("--kb-lift", lift + "px"); R.setProperty("--vv-h", Math.round(h) + "px");
+  document.documentElement.classList.toggle("kb", kb);
   if (top && document.activeElement && document.activeElement.matches("input")) window.scrollTo(0, 0);
 };
+document.addEventListener("focusout", () => setTimeout(setAppH, 60));
+document.addEventListener("focusin", () => setTimeout(setAppH, 60));
 setAppH(); addEventListener("resize", setAppH); addEventListener("orientationchange", setAppH);
 if (window.visualViewport){ visualViewport.addEventListener("resize", setAppH); visualViewport.addEventListener("scroll", setAppH); }
 
