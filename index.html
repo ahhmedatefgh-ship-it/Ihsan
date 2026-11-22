@@ -1633,6 +1633,163 @@ html body .intro.intro.intro.intro.stillpaint .i-nasser .i-fig .i-canvas{
 #whereSheet .wf-scanbtn{background:rgba(255,255,255,.1)!important;color:#fff!important;box-shadow:inset 0 0 0 1.5px var(--accent)!important}
 #whereSheet .wf-scanbtn svg{color:var(--accent)}
 @media (hover:hover) and (pointer:fine){#whereSheet .wf-scanbtn:hover{background:rgba(255,255,255,.16)!important}}
+/* «أين أنا؟» is glass like the scanner: a see-through teal tint over a blurred app. The tint still grows as a bubble
+   (transform only); the blur behind is one fixed layer that only fades, so nothing heavy is redrawn per frame */
+#whereSheet .wf-glass{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0;
+  -webkit-backdrop-filter:blur(28px) saturate(160%);backdrop-filter:blur(28px) saturate(160%);transition:opacity .35s ease .15s}
+#whereSheet.on .wf-glass{opacity:1;transition:opacity .45s ease}
+#whereSheet .wf-bubble{background:radial-gradient(closest-side,rgba(18,76,74,.7) 0,rgba(12,64,64,.74) 70%,rgba(12,64,64,.76) 100%)!important}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){ #whereSheet .wf-bubble{background:#175855!important} }
+.wf-plan .ground{fill:rgba(8,44,42,.8)!important}
+.wf-plan .gap{stroke:rgba(8,44,42,1)}
+
+/* under the map, one step at a time: «from → to», then the destinations or the way */
+.wf-route{margin:0 0 14px;padding:2px 14px;border-radius:16px;background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
+.wf-leg{display:flex;align-items:center;gap:10px;min-height:48px;position:relative}
+.wf-leg + .wf-leg{border-top:1px solid rgba(255,255,255,.12)}
+.wf-leg .mk{flex:none;width:12px;height:12px;border-radius:99px;box-sizing:border-box}
+.wf-leg.from .mk{background:var(--accent);box-shadow:0 0 0 4px rgba(216,182,110,.22)}
+.wf-leg.to .mk{border:2.5px solid var(--accent)}
+.wf-leg.to.empty .mk{border-color:rgba(255,255,255,.45)}
+.wf-leg .k{flex:none;min-width:30px;font-size:13px;color:rgba(234,246,243,.66)}
+.wf-leg b{font-size:15.5px;color:#fff;font-weight:800}
+.wf-leg .tm{font-size:13px;color:rgba(234,246,243,.66)} .wf-leg .tm::before{content:"· "}
+.wf-leg .ph{font-size:14.5px;color:rgba(234,246,243,.55)}
+.wf-chg{margin-inline-start:auto;flex:none;min-height:34px;padding:0 14px;border:0;border-radius:99px;cursor:pointer;color:#fff;
+  background:rgba(255,255,255,.1);box-shadow:inset 0 0 0 1px rgba(255,255,255,.28);font:700 13px "Tajawal",sans-serif;transition:transform .16s cubic-bezier(.23,1,.32,1)}
+.wf-chg:active{transform:scale(.97)}
+@media (hover:hover) and (pointer:fine){.wf-chg:hover{background:rgba(255,255,255,.18)}}
+#whereSheet .wf-q2 h3{margin:0 0 10px}
+#whereSheet .wf-dir{margin-top:0}
+@media (max-width:899px) and (orientation:portrait), (max-width:899px) and (min-height:541px), (orientation:portrait) and (max-width:1100px){
+  #whereSheet .wf-dest .tchip{min-height:44px}
+}
+@media (min-width:900px) and (orientation:landscape), (min-width:1101px), (orientation:landscape) and (max-height:540px){
+  #whereSheet .wf-route{padding:4px 18px;margin-bottom:22px}
+  #whereSheet .wf-leg{min-height:60px;gap:12px}
+  #whereSheet .wf-leg b{font-size:17.5px} #whereSheet .wf-leg .k,#whereSheet .wf-leg .tm{font-size:14.5px} #whereSheet .wf-leg .ph{font-size:16px}
+  #whereSheet .wf-chg{min-height:38px;font-size:14px;padding:0 16px}
+}
+@media (max-height:620px) and (orientation:portrait){
+  #whereSheet .wf-dest{gap:6px} #whereSheet .wf-dest .tchip{min-height:38px}
+  #whereSheet .wf-leg{min-height:42px} #whereSheet .wf-route{margin-bottom:10px} #whereSheet .wf-q2 h3{margin-bottom:6px}
+  #whereSheet .wf-near .wf-big{padding:10px 6px} #whereSheet .wf-scanbtn{min-height:46px}
+  #whereSheet .wf-or{margin-top:6px;margin-bottom:6px} #whereSheet .wf-qa h3{margin-bottom:8px}
+}
+/* ── sections: 1 where you are (always), 2 where to go (after 1), 3 the way (after 2) ── */
+#whereSheet .wf-tap{margin-top:8px;font-size:13px;color:rgba(234,246,243,.78)}
+#whereSheet .wf-qa{margin:0 0 12px}
+#whereSheet .wf-qa h3{display:flex;align-items:center;gap:8px;margin:0 0 8px}
+.wf-near .wf-big.on{background:var(--accent);color:#0F3B37;box-shadow:none}
+.wf-near .wf-big.on .ic{background:#0F3B37;color:var(--accent)}
+.wf-orrow,.wf-at{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13.5px;color:rgba(234,246,243,.78)}
+.wf-at{min-height:44px;padding:0 6px 0 12px;border-radius:14px;background:rgba(216,182,110,.15);color:#fff}
+.wf-at .ic{display:grid;color:var(--accent)} .wf-at .ic svg{width:16px;height:16px}
+.wf-at b{color:var(--accent)}
+.wf-rescan{margin-inline-start:auto;flex:none;display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 14px;border:0;border-radius:99px;cursor:pointer;
+  color:#fff;background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1.5px var(--accent);font:700 13px "Tajawal",sans-serif;white-space:nowrap;transition:transform .16s cubic-bezier(.23,1,.32,1)}
+.wf-at .wf-rescan{min-height:32px;padding:0 11px;font-size:12.5px}
+.wf-rescan svg{width:16px;height:16px;color:var(--accent)}
+.wf-rescan:active,.wf-d:active{transform:scale(.97)}
+.wf-dgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.wf-d{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:50px;padding:4px 2px;border:0;border-radius:12px;cursor:pointer;
+  color:#fff;background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px rgba(255,255,255,.24);font:700 12px/1.15 "Tajawal",sans-serif;text-align:center;transition:transform .16s cubic-bezier(.23,1,.32,1)}
+.wf-d svg{width:16px;height:16px;color:var(--accent)}
+.wf-d.on{background:var(--accent);color:#0F3B37;box-shadow:none} .wf-d.on svg{color:#0F3B37}
+@media (hover:hover) and (pointer:fine){.wf-d:not(.on):hover,.wf-rescan:hover{background:rgba(255,255,255,.16)}}
+.wf-way{padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+.wf-way-h{display:flex;align-items:center;gap:8px;margin:0 0 8px;font-size:13.5px;color:#fff}
+.wf-way-h b{color:var(--accent)}
+.wf-way-h .tm{margin-inline-start:auto;padding:3px 10px;border-radius:99px;background:rgba(216,182,110,.16);color:#fff;font-size:12.5px;font-weight:700}
+#whereSheet .wf-way .wf-dir{margin:0!important;padding:0!important;background:none!important;box-shadow:none!important;gap:6px}
+#whereSheet .wf-way .wf-dir li{font-size:13px}
+.wf-in{animation:wfIn .42s cubic-bezier(.23,1,.32,1) both}
+@keyframes wfIn{from{opacity:0;transform:translateY(10px)}}
+@media (prefers-reduced-motion: reduce){.wf-in{animation:wfFade .2s ease both}@keyframes wfFade{from{opacity:0}}}
+/* phone: a smaller map so all three sections fit without scrolling; the first choices sit side by side */
+@media (max-width:899px) and (orientation:portrait), (max-width:899px) and (min-height:541px), (orientation:portrait) and (max-width:1100px){
+  /* the map takes all the height the three sections leave free, so every step fits without scrolling */
+  #whereSheet .wf-top .wf-plan svg{max-height:clamp(150px,calc(100vh - var(--wf-rest,494px)),420px)!important;max-height:clamp(150px,calc(100dvh - var(--wf-rest,494px)),420px)!important;width:auto!important;max-width:100%;margin:0 auto;display:block}
+  #whereSheet .wf-tap{margin-top:5px;font-size:12.5px}
+  #whereSheet .wf-near{gap:7px;margin:0}
+  #whereSheet .wf-near .wf-big{flex-direction:row-reverse;justify-content:center;gap:6px;min-height:44px;padding:0 4px;border-radius:13px}
+  #whereSheet .wf-near .wf-big .ic{width:24px;height:24px;border-radius:7px} #whereSheet .wf-near .wf-big .ic svg{width:15px;height:15px}
+  #whereSheet .wf-near .wf-big b{font-size:12.5px;white-space:nowrap}
+  #whereSheet .wf-qa h3{font-size:14px;margin-bottom:6px} #whereSheet .wf-qa{margin-bottom:9px}
+  .wf-orrow,.wf-at{margin-top:8px;font-size:12.5px} .wf-at{min-height:40px} .wf-rescan{min-height:34px}
+  .wf-d{min-height:46px;font-size:11.5px}
+  .wf-way{padding:8px 11px} .wf-way-h{margin-bottom:6px;font-size:13px}
+  #whereSheet .wf-way .wf-dir li{font-size:12.5px;line-height:1.45}
+}
+/* laptop: same order, more room; the panel starts at the top so a new section never moves the ones above it */
+@media (min-width:900px) and (orientation:landscape), (min-width:1101px), (orientation:landscape) and (max-height:540px){
+  #whereSheet .body{justify-content:flex-start!important;padding-top:min(14vh,120px)!important}
+  #whereSheet .wf-qa{margin-bottom:22px} #whereSheet .wf-qa h3{font-size:19px;margin-bottom:12px}
+  .wf-orrow,.wf-at{font-size:15px;margin-top:14px} .wf-at{min-height:52px}
+  .wf-rescan{min-height:44px;font-size:15px;padding:0 18px} .wf-rescan svg{width:19px;height:19px}
+  .wf-dgrid{gap:10px} .wf-d{min-height:72px;font-size:14.5px;gap:6px} .wf-d svg{width:20px;height:20px}
+  .wf-way{padding:14px 16px} .wf-way-h{font-size:16px;margin-bottom:10px} .wf-way-h .tm{font-size:14px}
+  #whereSheet .wf-way .wf-dir li{font-size:15px}
+  #whereSheet .wf-tap{font-size:15px}
+}
+@media (max-height:620px) and (orientation:portrait){ #whereSheet .wf-d{min-height:44px} }
+/* «or scan a piece near you» sits above a full-width scan button */
+.wf-orrow{flex-direction:column;align-items:stretch;gap:8px}
+.wf-orrow .wf-rescan{margin:0;justify-content:center;width:100%;min-height:44px;font-size:14px}
+@media (min-width:900px) and (orientation:landscape), (min-width:1101px), (orientation:landscape) and (max-height:540px){
+  .wf-orrow .wf-rescan{min-height:52px;font-size:16px}
+}
+@media (min-width:900px) and (orientation:landscape) and (max-height:780px){
+  #whereSheet .wf-near .wf-big{padding:10px 8px;gap:6px} #whereSheet .wf-near .wf-big .ic{width:34px;height:34px}
+  #whereSheet .wf-qa{margin-bottom:14px} #whereSheet .wf-qa h3{margin-bottom:8px}
+  .wf-d{min-height:58px} .wf-orrow .wf-rescan{min-height:44px} .wf-orrow,.wf-at{margin-top:10px}
+}
+/* phones (portrait): balanced — the map gets most of the height, the controls stay comfortable to tap.
+   Short phones fall back to the compact sizes below. */
+@media (max-width:899px) and (orientation:portrait), (max-width:899px) and (min-height:541px), (orientation:portrait) and (max-width:1100px){
+  #whereSheet{--wf-rest:534px}
+  #whereSheet .wf-top{padding-left:12px!important;padding-right:12px!important}
+  #whereSheet .wf-top .wf-plan svg{max-height:clamp(150px,calc(100dvh - var(--wf-rest)),460px)!important}
+  #whereSheet .wf-tap{margin-top:6px;font-size:13px}
+  #whereSheet .wf-qa{margin-bottom:11px} #whereSheet .wf-qa h3{font-size:15px;margin-bottom:7px}
+  #whereSheet .wf-qa h3 .n{width:21px;height:21px;font-size:11.5px}
+  #whereSheet .wf-near{gap:7px}
+  #whereSheet .wf-near .wf-big{min-height:46px;gap:7px;border-radius:14px}
+  #whereSheet .wf-near .wf-big .ic{width:26px;height:26px;border-radius:8px} #whereSheet .wf-near .wf-big .ic svg{width:16px;height:16px}
+  #whereSheet .wf-near .wf-big b{font-size:13.5px}
+  .wf-orrow,.wf-at{margin-top:8px;font-size:13px} .wf-at{min-height:42px} .wf-orrow .wf-rescan{min-height:42px;font-size:14px}
+  .wf-at .wf-rescan{min-height:32px;font-size:12.5px}
+  .wf-dgrid{gap:6px} .wf-d{min-height:52px;font-size:12px;gap:4px;border-radius:13px} .wf-d svg{width:17px;height:17px}
+  .wf-way{padding:10px 12px;border-radius:15px} .wf-way-h{font-size:14px;margin-bottom:8px} .wf-way-h .tm{font-size:12.5px;padding:3px 10px}
+  #whereSheet .wf-way .wf-dir{gap:7px!important} #whereSheet .wf-way .wf-dir li{font-size:13px;line-height:1.5}
+  #whereSheet .wf-way .wf-dir .tn{width:20px;height:20px;font-size:11px}
+}
+@media (orientation:portrait) and (max-height:760px){
+  #whereSheet{--wf-rest:498px}
+  #whereSheet .wf-tap{margin-top:5px;font-size:12.5px}
+  #whereSheet .wf-qa{margin-bottom:9px} #whereSheet .wf-qa h3{font-size:14px;margin-bottom:6px}
+  #whereSheet .wf-near .wf-big{min-height:44px} #whereSheet .wf-near .wf-big .ic{width:24px;height:24px} #whereSheet .wf-near .wf-big b{font-size:12.5px}
+  .wf-orrow,.wf-at{margin-top:8px;font-size:12.5px} .wf-at{min-height:40px} .wf-orrow .wf-rescan{min-height:40px;font-size:13.5px} .wf-at .wf-rescan{min-height:32px}
+  .wf-dgrid{gap:6px} .wf-d{min-height:46px;font-size:11.5px;gap:3px} .wf-d svg{width:16px;height:16px}
+  .wf-way{padding:8px 11px} .wf-way-h{font-size:13px;margin-bottom:6px}
+  #whereSheet .wf-way .wf-dir{gap:6px!important} #whereSheet .wf-way .wf-dir li{font-size:12.5px;line-height:1.45}
+}
+/* tall phones: the map is already as wide as the screen, so the spare height goes back to the controls */
+@media (orientation:portrait) and (max-width:899px) and (min-height:840px){
+  #whereSheet .wf-near .wf-big{min-height:52px} #whereSheet .wf-near .wf-big b{font-size:14px} #whereSheet .wf-near .wf-big .ic{width:28px;height:28px}
+  .wf-d{min-height:58px;font-size:12.5px} .wf-d svg{width:18px;height:18px}
+  .wf-at{min-height:46px} .wf-orrow .wf-rescan{min-height:46px}
+  #whereSheet .wf-qa{margin-bottom:13px} #whereSheet .wf-qa h3{font-size:15.5px;margin-bottom:9px}
+  #whereSheet .wf-way .wf-dir li{font-size:13.5px}
+}
+@media (orientation:portrait) and (max-width:899px) and (min-height:920px){
+  #whereSheet .wf-near .wf-big{min-height:58px} #whereSheet .wf-near .wf-big b{font-size:15px} #whereSheet .wf-near .wf-big .ic{width:32px;height:32px}
+  .wf-d{min-height:66px;font-size:13.5px} .wf-d svg{width:20px;height:20px}
+  .wf-at{min-height:50px} .wf-orrow .wf-rescan{min-height:50px;font-size:15px}
+  #whereSheet .wf-qa{margin-bottom:16px} #whereSheet .wf-qa h3{font-size:16.5px;margin-bottom:10px}
+  .wf-way{padding:13px 15px} .wf-way-h{font-size:15px} #whereSheet .wf-way .wf-dir li{font-size:14.5px}
+  #whereSheet .wf-tap{margin-top:10px;font-size:14px}
+}
 </style>
 <style>
 /* ===== laptop: pause / mute in the chat header; cards (normal size) under Zaid; QR on its own ===== */
@@ -3028,7 +3185,7 @@ Object.assign(T.ar, {
   whereChip:"أين أنا؟", whereTitle:"أين أنا؟", whereNear:"هل أنت بجانب…", whereMore:"أماكن أخرى", whereDunno:"لا أعرف مكاني",
   whereScanP:"لا بأس! امسح رمز أي قطعة أثرية أمامك، وسأعرف مكانك.", whereScanB:"امسح قطعة أثرية",
   whereFound:"وجدتك! أنت في {h}، بجانب {p}.",
-  whereHere:"أنت في", whereChange:"غيّر مكاني", whereTo:"إلى أين تريد أن تذهب؟", whereSame:"أنت هنا بالفعل.",
+  whereHere:"أنت في", whereChange:"غيّر مكاني", wFrom:"من", wTo:"إلى", wPickTo:"اختر وجهتك", wChg:"غيّر", wOrScan2:"أو يمكنك مسح أي قطعة بجانبك", wScanBtn:"امسح قطعة", wRescan:"إعادة المسح", wAtScan:"أنت في {h} بناءً على مسح الرمز", wAt:"أنت في {h}", wTapHere:"المس الخريطة لتحديد مكانك", wTapTo:"المس الخريطة لاختيار وجهتك", wWayH:"الطريق إلى {b}", whereTo:"إلى أين تريد أن تذهب؟", whereSame:"أنت هنا بالفعل.",
   whereDemo:"أقسام المعرض من كتيّب المعرض؛ أما المخطط وأماكن الخدمات فافتراضية حتى نستلم مخطط المتحف.",
   wOut:"اخرج من {a} إلى البهو الرئيسي.", wIn:"ادخل إلى البهو الرئيسي.", wWalk:"امشِ في البهو حتى {b}: {w}.", wMin:"نحو {n} مشيًا.",
   corridor:"البهو الرئيسي", wFromScan:"حسب آخر قطعة مسحتها: {p}", wFromUser:"حسب ما أخبرتني",
@@ -3039,7 +3196,7 @@ Object.assign(T.en, {
   whereChip:"Where am I?", whereTitle:"Where am I?", whereNear:"Are you near…", whereMore:"Other places", whereDunno:"I don't know where I am",
   whereScanP:"No problem! Scan the code of any piece in front of you and I'll find you.", whereScanB:"Scan a piece",
   whereFound:"Found you! You are in {h}, next to {p}.",
-  whereHere:"You are in", whereChange:"Change my spot", whereTo:"Where would you like to go?", whereSame:"You are already here.",
+  whereHere:"You are in", whereChange:"Change my spot", wFrom:"From", wTo:"To", wPickTo:"Choose where to go", wChg:"Change", wOrScan2:"Or scan any piece near you", wScanBtn:"Scan a piece", wRescan:"Scan again", wAtScan:"You are at {h}, from the code you scanned", wAt:"You are at {h}", wTapHere:"Tap the map to set your spot", wTapTo:"Tap the map to choose where to go", wWayH:"The way to {b}", whereTo:"Where would you like to go?", whereSame:"You are already here.",
   whereDemo:"The halls come from the exhibition booklet; the plan and the services are placeholders until we receive the museum's plan.",
   wOut:"Leave {a} for the main hall.", wIn:"Step into the main hall.", wWalk:"Walk through the hall to {b}: {w}.", wMin:"About {n} on foot.",
   corridor:"Main hall", wFromScan:"From the last piece you scanned: {p}", wFromUser:"From what you told me",
@@ -3144,7 +3301,17 @@ function wPlan(here, to, live){
     <rect class="hallfl" x="12" y="136" width="336" height="54"/>
     ${Object.keys(WZ).map(room).join("")}${furn}${walls}${route}${Object.keys(WZ).map(label).join("")}${dot}</svg>`;
 }
-let wSig = "";
+let wSig = "", wPrev = {here:null, to:null};
+// laptop: the questions start near the top, under the title
+const WIDE = matchMedia("(min-width:900px) and (orientation:landscape), (min-width:1101px), (orientation:landscape) and (max-height:540px)");
+function wAlign(){
+  const body = $("#whereBody"), svg = $("#whereTop .wf-plan svg"); if (!body || !svg) return;
+  if (!WIDE.matches){ body.style.removeProperty("padding-top"); return; }
+  // section ١ starts a little below the title, at 15 % of the screen height (his red line), not at the map's top
+  const tf = getComputedStyle(body).transform, dy = tf && tf !== "none" ? new DOMMatrix(tf).m42 : 0;   // ignore the opening's slide-in
+  body.style.setProperty("padding-top", Math.max(12, Math.round(innerHeight * .15 - (body.getBoundingClientRect().top - dy))) + "px", "important");
+}
+addEventListener("resize", () => requestAnimationFrame(wAlign));
 function renderWhere(force){
   const body = $("#whereBody"); if (!body) return;
   // nothing changed since the last build (e.g. a fresh open): keep the DOM as it is, so opening has no work to do
@@ -3152,32 +3319,33 @@ function renderWhere(force){
   if (!force && sig === wSig && body.childElementCount){ WH.jump = false; return; }
   wSig = sig;
   const here = curHere(), to = WH.to && WH.to !== here ? WH.to : null;
-  const keepY = body.scrollTop;
-  const chip = (k, a, on) => `<button class="tchip ${on ? "on" : ""}" data-a="${a}" data-z="${k}" aria-pressed="${!!on}">${ICON[WZ[k].icon]}<span>${WZ[k].s[lang]}</span></button>`;
+    const chip = (k, a, on) => `<button class="tchip ${on ? "on" : ""}" data-a="${a}" data-z="${k}" aria-pressed="${!!on}">${ICON[WZ[k].icon]}<span>${WZ[k].s[lang]}</span></button>`;
   const fromOrder = ["entrance", "exit", "lounge", "wc", "space", "tiles", "carpets", "quran"];
   const toOrder = ["entrance", "exit", "wc", "lounge", "space", "tiles", "carpets", "quran"].filter(k => k !== here);
-  let status;
-  if (here && to) status = `<b>${WZ[here].s[lang]}</b><span class="ar">${lang === "ar" ? "←" : "→"}</span><b>${WZ[to].s[lang]}</b><span class="tm">· ${wMinTxt(wRoute(here, to).min)}</span>`;
-  else if (here) status = `<span class="ic">${ICON.pin}</span>${t("whereHere")} <b>${WZ[here].s[lang]}</b>`;
-  else status = `<span class="ic">${ICON.pin}</span>${t("wPickBoth")}`;
-  const found = WH.found && WH.src === "scan" && PRODUCTS[WH.pid] && here ? `<p class="wf-found">${t("whereFound").replace("{h}", WZ[here].n[lang]).replace("{p}", PRODUCTS[WH.pid].name[lang])}</p>` : "";
-  const top = $("#whereTop"); if (top) top.innerHTML = `<div class="wf-plan">${wPlan(here, to, true)}</div><p class="wf-status" aria-live="polite">${status}</p>`;
-  body.innerHTML = `${found}
-    ${here ? `<section class="wf-qa wf-done"><h3><span class="n">${tn(1)}</span>${t("whereHere")} <b>${WZ[here].n[lang]}</b></h3><button class="tchip ghost" data-a="wreset">${t("whereChange")}</button></section>`
-    : `<section class="wf-qa"><h3><span class="n">${tn(1)}</span>${t("whereQ1")}</h3>
-      <div class="wf-near">${NEAR_FIRST.map(k => `<button class="wf-big" data-a="wnear" data-z="${k}"><span class="ic">${ICON[WZ[k].icon]}</span><b>${WZ[k].s[lang]}</b></button>`).join("")}</div>
-      <p class="wf-or">${t("whereOrScan")}</p>
-      <button class="btn accent block wf-scanbtn" data-a="wdunno">${ICON.qr}<span>${t("whereScanNear")}</span></button>
-      <p class="wf-or sm">${t("whereTapMap")}</p></section>`}
-    ${here ? `<section class="wf-qa wf-q2"><h3><span class="n">${tn(2)}</span>${t("whereTo")}</h3>
-      <div class="wf-dest">${toOrder.map(k => chip(k, "wto", k === to)).join("")}</div></section>` : ""}
-    ${here && to ? `<ol class="wf-dir">${wSteps(here, to).slice(0, 2).map((s, i) => `<li><span class="tn">${tn(i + 1)}</span><span>${s}</span></li>`).join("")}</ol>` : ""}`;
-  body.scrollTop = keepY;
-  // once they say where they are, bring the second question up
-  if (WH.jump){ WH.jump = false; const q = body.querySelectorAll(".wf-qa")[1]; if (q) requestAnimationFrame(() => body.scrollTo({top: Math.max(0, q.offsetTop - 6), behavior: reduce ? "auto" : "smooth"})); }
+  // the map says what a tap on it does right now
+  const top = $("#whereTop"); if (top) top.innerHTML = `<div class="wf-plan">${wPlan(here, to, true)}</div><p class="wf-status wf-tap"><span class="ic">${ICON.pin}</span>${t(here ? "wTapTo" : "wTapHere")}</p>`;
+  // sections appear one after another: where you are, then where to go, then the way. Only a section that has just
+  // appeared animates in (re-renders of what is already there stay still)
+  const prev = wPrev; wPrev = {here, to};
+  const in2 = here && !prev.here ? " wf-in" : "", in3 = here && to && (to !== prev.to || here !== prev.here) ? " wf-in" : "";
+  const atLine = here && !NEAR_FIRST.includes(here)
+    ? `<div class="wf-at"><span class="ic">${ICON.pin}</span><span class="tx">${t(WH.src === "scan" ? "wAtScan" : "wAt").replace("{h}", `<b>${WZ[here].s[lang]}</b>`)}</span><button class="wf-rescan" data-a="wdunno">${ICON.qr}<span>${t("wRescan")}</span></button></div>`
+    : `<div class="wf-orrow"><span>${t("wOrScan2")}</span><button class="wf-rescan" data-a="wdunno">${ICON.qr}<span>${t("wScanBtn")}</span></button></div>`;
+  body.innerHTML = `<section class="wf-qa wf-s1"><h3><span class="n">${tn(1)}</span>${t("whereQ1")}</h3>
+      <div class="wf-near">${NEAR_FIRST.map(k => `<button class="wf-big ${k === here ? "on" : ""}" data-a="wnear" data-z="${k}" aria-pressed="${k === here}"><span class="ic">${ICON[WZ[k].icon]}</span><b>${WZ[k].s[lang]}</b></button>`).join("")}</div>
+      ${atLine}</section>
+    ${here ? `<section class="wf-qa wf-s2${in2}"><h3><span class="n">${tn(2)}</span>${t("whereTo")}</h3>
+      <div class="wf-dgrid">${toOrder.map(k => `<button class="wf-d ${k === to ? "on" : ""}" data-a="wto" data-z="${k}" aria-pressed="${k === to}">${ICON[WZ[k].icon]}<span>${WZ[k].s[lang]}</span></button>`).join("")}</div></section>` : ""}
+    ${here && to ? `<section class="wf-way${in3}" aria-live="polite"><div class="wf-way-h"><span>${t("wWayH").replace("{b}", `<b>${WZ[to].s[lang]}</b>`)}</span><span class="tm">${wMinTxt(wRoute(here, to).min)}</span></div>
+      <ol class="wf-dir">${wSteps(here, to).slice(0, 2).map((s, i) => `<li><span class="tn">${tn(i + 1)}</span><span>${s}</span></li>`).join("")}</ol></section>` : ""}`;
+  wAlign();
+  // each step fits on the screen as it is: nothing scrolls by itself
+  WH.jump = false; body.scrollTop = 0; const sh = $("#whereSheet"); if (sh) sh.scrollTop = 0;
+  if (WH.here && (document.scrollingElement || document.body).scrollTop) (document.scrollingElement || document.body).scrollTop = 0;
 }
 document.body.insertAdjacentHTML("beforeend", `
 <section class="sheet" id="whereSheet" role="dialog" aria-modal="true" aria-labelledby="wfH">
+  <div class="wf-glass" aria-hidden="true"></div>
   <div class="wf-bubble" aria-hidden="true"></div>
   <header><h2 id="wfH" data-t="whereTitle"></h2><button class="x" data-a="close">${ICON.close}</button></header>
   <div class="wf-top" id="whereTop"></div>
@@ -3222,7 +3390,7 @@ function wOrigin(el){ const s = $("#whereSheet"); if (!s) return; const r = el &
   s.style.setProperty("--ox", x + "px"); s.style.setProperty("--oy", y + "px"); s.style.setProperty("--s", (d / 160).toFixed(3));
   s.classList.add("wf-noanim"); void getComputedStyle(s).clipPath; s.classList.remove("wf-noanim"); }
 function wFreshScale(){ const s = $("#whereSheet"); if (s && !s.style.getPropertyValue("--s")) wOrigin(null); }
-function wFresh(){ WH.here = null; WH.to = null; WH.src = null; WH.pid = null; WH.found = false; WH.more = false; WH.awaitScan = false; WH.step = "near";
+function wFresh(){ wPrev = {here:null, to:null}; WH.here = null; WH.to = null; WH.src = null; WH.pid = null; WH.found = false; WH.more = false; WH.awaitScan = false; WH.step = "near";
   WH.seen = S.history.filter(x => x.type === "product").length; }
 // a new spot always starts with no destination: the visitor chooses again
 function wSetHere(z){ WH.here = z; WH.src = "user"; WH.found = false; WH.seen = S.history.filter(x => x.type === "product").length; WH.to = null; }
@@ -3295,6 +3463,7 @@ document.addEventListener("click", e => {
     case "wback": WH.step = "near"; WH.awaitScan = false; renderWhere(); break;
     case "wscan": wDunno(); break;
     case "wto": WH.to = a.dataset.z; renderWhere(); break;
+    case "wclear": WH.to = null; renderWhere(); break;
     case "wreset": WH.here = null; WH.to = null; WH.src = null; WH.found = false; WH.step = "near"; WH.seen = S.history.filter(m => m.type === "product").length; renderWhere(); break;
     case "wherePick": wherePick(a.dataset.z); break;
     case "wayOpen": openWhere(a.dataset.to || null); break;
