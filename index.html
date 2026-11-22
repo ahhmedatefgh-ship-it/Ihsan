@@ -2840,7 +2840,7 @@ function wireNew(ctx){
 const rerender = ctx => ctx==="pick" ? renderPick() : renderCart();
 function createCol(ctx){
   const i = $("#ncIn"); const name = (i && i.value.trim()) || "";
-  if (!name){ if (i){ i.classList.remove("shake"); void i.offsetWidth; i.classList.add("shake"); i.focus(); } return; }
+  if (!name){ if (i){ i.classList.remove("shake"); void i.offsetWidth; i.classList.add("shake"); if (!(typeof PHONE !== "undefined" && PHONE.matches)) i.focus(); } return; }
   const alsoAdd = ctx==="pick";
   const c = {id:"c"+Date.now().toString(36), name, items: alsoAdd ? [PRODUCT.id] : []};
   S.cols.splice(1, 0, c);                 // newest right under the default collection, next to where it was made
@@ -2917,7 +2917,8 @@ function renderCart(){
     </section>`).join("") + emptyNote;
   foot.innerHTML = `<button class="btn accent block" data-a="scan">${ICON.scan}${t("scanNow")}</button>`;
   wireNew("cols");
-  if (editing){ const id = editing, r = $("#rn-"+id); if (r){ requestAnimationFrame(() => { r.focus({preventScroll:true}); r.select(); });
+  // phones: the rename field waits for a tap too (a scripted focus there lifted the sheet and dropped it again)
+  if (editing){ const id = editing, r = $("#rn-"+id); if (r){ if (!(typeof PHONE !== "undefined" && PHONE.matches)) requestAnimationFrame(() => { r.focus({preventScroll:true}); r.select(); }); else r.addEventListener("focus", () => { try{ r.select(); }catch(err){} }, {once: true});   // first tap selects the old name, so typing replaces it (as on desktop)
     r.addEventListener("keydown", e => { if (e.isComposing) return; if (e.key==="Enter"){ e.preventDefault(); commitRename(id); } if (e.key==="Escape"){ e.preventDefault(); e.stopPropagation(); commitRename(id, true); } });
     r.addEventListener("blur", () => setTimeout(() => commitRename(id), 120)); } }
 }
@@ -2952,7 +2953,8 @@ function closeSheet(silent){
   const wasScan = openId === "scanSheet"; openId=null;
   // a scanner opened over «أين أنا؟» closes back onto it, not onto the main page
   const ws = $("#whereSheet"); if (wasScan && ws && ws.classList.contains("on")){ openId = "whereSheet"; $("#scanSheet").classList.remove("over"); return; }
-  if (!silent && lastFocus && lastFocus.isConnected) lastFocus.focus({preventScroll:true});
+  // (on phones focus is never handed back to a text field: that would pop the keyboard up on its own)
+  if (!silent && lastFocus && lastFocus.isConnected && !(typeof PHONE !== "undefined" && PHONE.matches && lastFocus.matches && lastFocus.matches("input,textarea"))) lastFocus.focus({preventScroll:true});
 }
 var view3d = null;
 function renderDetails(){
@@ -3626,7 +3628,7 @@ const kbHandOver = (el) => {
   const go = () => { clearTimeout(kbHandT); if (document.activeElement !== kbProxy) return;
     const carry = kbProxy.value; kbProxy.value = "";
     try{ el.focus({preventScroll: true}); }catch(err){ el.focus(); }
-    if (carry){ el.value += carry; el.dispatchEvent(new Event("input", {bubbles: true})); }
+    if (carry){ try{ el.setRangeText(carry, el.selectionStart, el.selectionEnd, "end"); }catch(err){ el.value += carry; } el.dispatchEvent(new Event("input", {bubbles: true})); }
     kbTrack(600); };
   kbHandT = setTimeout(go, 520);                                         // after the bubble rise has (nearly) landed
   return go;
@@ -3641,7 +3643,7 @@ document.addEventListener("touchend", (e) => {
   const guess = kbGuess > 0 ? kbGuess : Math.round(appH0 * .44); const vh = appH0 - guess;
   kbRise(vh - kbExtra(), vh); kbTrack(900); kbHandOver(el);
 }, {passive: false, capture: true});
-kbProxy.addEventListener("keydown", (e) => { if (e.key === "Enter"){ e.preventDefault(); const t = kbTapEl; if (t){ try{ t.focus({preventScroll:true}); }catch(err){} t.value += kbProxy.value; kbProxy.value = ""; t.dispatchEvent(new Event("input", {bubbles: true})); t.dispatchEvent(new KeyboardEvent("keydown", {key: "Enter", bubbles: true})); } } });
+kbProxy.addEventListener("keydown", (e) => { if (e.key === "Enter"){ e.preventDefault(); const t = kbTapEl; if (t){ try{ t.focus({preventScroll:true}); }catch(err){} try{ t.setRangeText(kbProxy.value, t.selectionStart, t.selectionEnd, "end"); }catch(err){ t.value += kbProxy.value; } kbProxy.value = ""; t.dispatchEvent(new Event("input", {bubbles: true})); t.dispatchEvent(new KeyboardEvent("keydown", {key: "Enter", bubbles: true})); } } });
 document.addEventListener("focusin", (e) => {
   if (!PHONE.matches || !e.target.matches || !e.target.matches("input,textarea")) return;
   const tapped = kbTapEl && (kbTapEl === e.target || e.target.contains(kbTapEl) || (kbTapEl.closest && kbTapEl.closest("label,.composer") && kbTapEl.closest("label,.composer").contains(e.target))) && performance.now() - kbTapT < 800;
