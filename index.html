@@ -891,8 +891,8 @@ html[dir="ltr"] .thread>.m:not(.first){transform-origin:100% 100%} html[dir="ltr
   .talk{position:relative;top:0;transition:top .28s cubic-bezier(.23,1,.32,1)} .composer{transition:transform .28s cubic-bezier(.23,1,.32,1)}
   html.kb .talk{top:calc(-1 * var(--kb-lift,0px));z-index:20}
   .top,[data-stage]{transition:opacity .2s ease} html.kb .top,html.kb [data-stage]{opacity:0;pointer-events:none}   /* no half robe peeking out under the chat */
-  html.kb .composer{transform:translateY(calc(-1 * var(--kb-lift,0px)))}
-  html.kb .sheet.on{transform:translateY(calc(-1 * var(--kb-lift,0px)));max-height:calc(var(--app-h,100dvh) - var(--kb-lift,0px) - 20px)}
+  html.kb .composer{transform:translateY(calc(-1 * var(--kb-fix,0px)))}
+  html.kb .sheet.on{transform:translateY(calc(-1 * var(--kb-fix,0px)));max-height:calc(var(--vv-h,100dvh) - 66px)}
   .qs{display:none!important}
   .talk{margin-top:6px}
   .qs-in{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:12px 0 2px;padding:0;list-style:none}
@@ -3509,13 +3509,20 @@ const IOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform 
 let appH0 = 0;
 const setAppH = () => {
   const vv = window.visualViewport, h = (vv && vv.height) || innerHeight, top = vv ? vv.offsetTop : 0;
-  const R = document.documentElement.style, kb = !!vv && innerHeight - h > 120 && !!document.activeElement && document.activeElement.matches("input,textarea");
-  if (!kb || !appH0) appH0 = kb ? innerHeight : Math.round(h);
+  const R = document.documentElement.style, typing = !!document.activeElement && document.activeElement.matches("input,textarea");
+  // the page height is measured while nobody types; iOS 26 shrinks even the layout viewport with the keyboard, so the
+  // keyboard is told apart by focus + a much shorter visible area, never by innerHeight
+  if (!typing || !appH0) appH0 = Math.round(h);
+  const kb = !!vv && typing && h < appH0 - 120;
   R.setProperty("--app-h", appH0 + "px"); R.setProperty("--app-top", "0px");
-  const lift = kb ? Math.max(0, Math.round(appH0 - (top + h)) + (IOS && !navigator.standalone ? 46 : 8)) : 0;
-  R.setProperty("--kb-lift", lift + "px"); R.setProperty("--vv-h", Math.round(h) + "px");
+  const extra = IOS && !navigator.standalone ? 46 : 8;              // iPhone Safari floats its address bar above the keyboard
+  const visBottom = Math.round(top + h) - extra;                      // lowest point that stays visible above all of that
+  // the chat panel sits in the page (full height), the composer and the sheets are fixed to the layout viewport
+  R.setProperty("--kb-lift", (kb ? Math.max(0, appH0 - visBottom) : 0) + "px");
+  R.setProperty("--kb-fix", (kb ? Math.max(0, Math.round(innerHeight) - visBottom) : 0) + "px");
+  R.setProperty("--vv-h", Math.round(h) + "px");
   document.documentElement.classList.toggle("kb", kb);
-  if (top && document.activeElement && document.activeElement.matches("input")) window.scrollTo(0, 0);
+  if (top && typing) window.scrollTo(0, 0);
 };
 document.addEventListener("focusout", () => setTimeout(setAppH, 60));
 document.addEventListener("focusin", () => setTimeout(setAppH, 60));
