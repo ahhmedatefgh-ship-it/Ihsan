@@ -3585,8 +3585,14 @@ const setAppH = (fromTrack) => {
   kbWas = kb || (kbWas && !typing && h < appH0 - 120);
   if (typing && PHONE.matches) kbNoScroll();
   if (fromTrack !== true && typing) kbTrack(600);
-  if (KBDBG){ const sy = Math.round(window.scrollY || 0), row = `${Math.round(performance.now()) % 100000} ih${innerHeight} vh${Math.round(h)} vt${Math.round(top)} sy${sy} kb${kb ? 1 : 0} fix${getComputedStyle(D).getPropertyValue("--kb-fix").trim()}`;
-    const key = row.replace(/^\d+ /, ""); if (kbLog.lastKey !== key){ kbLog.lastKey = key; kbLog.push(row); if (kbLog.length > 14) kbLog.shift(); }
+  if (KBDBG){ const sy = Math.round(window.scrollY || 0), row = (() => { const a = document.activeElement, ae = a && a.id === "kbProxy" ? "PROXY" : a && a.matches && a.matches("input,textarea") ? (a.id || "chat") : "-";
+      const bb = el => { const e = document.querySelector(el); return e ? Math.round(e.getBoundingClientRect().bottom) : "-"; };
+      const k = `ih${innerHeight} vh${Math.round(h)} vt${Math.round(top)} sy${sy} kb${kb ? 1 : 0} f:${ae}`;
+      return [k, `${Math.round(performance.now()) % 100000} ${k} bar${bb(".composer")} sh${bb(".sheet.on")}`]; })();
+    const changed = kbLog.lastKey !== row[0];
+    if (changed){ kbLog.lastKey = row[0]; kbLog.push(row[1]); if (kbLog.length > 16) kbLog.shift(); }
+    if (changed){ clearTimeout(kbLog.t); kbLog.t = setTimeout(() => { const bb = el => { const e = document.querySelector(el); return e ? Math.round(e.getBoundingClientRect().bottom) : "-"; };
+      kbLog.push(`  ↳ settled bar${bb(".composer")} sh${bb(".sheet.on")} target${Math.round((visualViewport ? visualViewport.offsetTop + visualViewport.height : innerHeight)) - kbExtra()}`); if (kbLog.length > 16) kbLog.shift(); }, 700); }
     kbDebug({h, top, kb, visBottom: Math.round(top + h) - kbExtra(), typing}); }
 };
 // focus: start rising at once with the remembered keyboard height (first time on a phone: wait for the real one)
@@ -3606,20 +3612,43 @@ document.addEventListener("pointerdown", (e) => { kbTapEl = e.target; kbTapT = p
 // iPhone: a tap on a field normally makes WebKit scroll the whole page to "show" it before our lift starts (the jumble in
 // his 16:25 recording). The tap is taken over: the field is focused by us, inside the same tap (so the keyboard still
 // opens) but with preventScroll, and the lift starts in the same moment.
+// Even with preventScroll, iOS pans the page when the keyboard comes up if the focused field sits where the keyboard
+// will be. So the keyboard is opened on a hidden "proxy" field at the very top of the screen (iOS has nothing to scroll
+// to), the card / sheet rises meanwhile, and once it is up the focus moves to the real field — which is then already
+// above the keyboard. Moving focus while the keyboard is open keeps it open; anything typed in between is carried over.
+const kbProxy = document.createElement("input");
+kbProxy.type = "text"; kbProxy.id = "kbProxy"; kbProxy.setAttribute("aria-hidden", "true"); kbProxy.tabIndex = -1; kbProxy.autocomplete = "off";
+kbProxy.style.cssText = "position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;font-size:16px;border:0;padding:0;margin:0;pointer-events:none;z-index:-1";
+document.body.appendChild(kbProxy);
+let kbHandT = 0;
+const kbHandOver = (el) => {
+  clearTimeout(kbHandT);
+  const go = () => { clearTimeout(kbHandT); if (document.activeElement !== kbProxy) return;
+    const carry = kbProxy.value; kbProxy.value = "";
+    try{ el.focus({preventScroll: true}); }catch(err){ el.focus(); }
+    if (carry){ el.value += carry; el.dispatchEvent(new Event("input", {bubbles: true})); }
+    kbTrack(600); };
+  kbHandT = setTimeout(go, 520);                                         // after the bubble rise has (nearly) landed
+  return go;
+};
 document.addEventListener("touchend", (e) => {
   if (!PHONE.matches || !IOS) return;
   const el = e.target && e.target.closest && e.target.closest("input,textarea");
-  if (!el || el.disabled || el.readOnly || document.activeElement === el) return;   // already typing: leave caret taps alone
+  if (!el || el === kbProxy || el.disabled || el.readOnly || document.activeElement === el) return;   // already typing: leave caret taps alone
   e.preventDefault(); kbTapEl = el; kbTapT = performance.now();
-  try{ el.focus({preventScroll: true}); }catch(err){ el.focus(); }
+  if (el.closest(".composer")) kbFreeze();
+  try{ kbProxy.focus({preventScroll: true}); }catch(err){ kbProxy.focus(); }  // keyboard opens; nothing to scroll to
+  const guess = kbGuess > 0 ? kbGuess : Math.round(appH0 * .44); const vh = appH0 - guess;
+  kbRise(vh - kbExtra(), vh); kbTrack(900); kbHandOver(el);
 }, {passive: false, capture: true});
+kbProxy.addEventListener("keydown", (e) => { if (e.key === "Enter"){ e.preventDefault(); const t = kbTapEl; if (t){ try{ t.focus({preventScroll:true}); }catch(err){} t.value += kbProxy.value; kbProxy.value = ""; t.dispatchEvent(new Event("input", {bubbles: true})); t.dispatchEvent(new KeyboardEvent("keydown", {key: "Enter", bubbles: true})); } } });
 document.addEventListener("focusin", (e) => {
   if (!PHONE.matches || !e.target.matches || !e.target.matches("input,textarea")) return;
   const tapped = kbTapEl && (kbTapEl === e.target || e.target.contains(kbTapEl) || (kbTapEl.closest && kbTapEl.closest("label,.composer") && kbTapEl.closest("label,.composer").contains(e.target))) && performance.now() - kbTapT < 800;
   if (!tapped) return;                                                   // a scripted focus brings no keyboard: move nothing
   clearTimeout(kbOffT); if (e.target.closest(".composer")) kbFreeze();
   const guess = kbGuess > 0 ? kbGuess : (IOS ? Math.round(appH0 * .44) : 0);   // first time on an iPhone: a typical keyboard
-  if (guess > 0){ const vh = appH0 - guess; kbRise(vh - kbExtra(), vh); }
+  if (guess > 0 && !document.documentElement.classList.contains("kb")){ const vh = appH0 - guess; kbRise(vh - kbExtra(), vh); }
   kbTrack(900);
   setTimeout(setAppH, 60);
   // no on-screen keyboard after all (hardware keyboard): settle back down
