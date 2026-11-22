@@ -894,7 +894,8 @@ html[dir="ltr"] .thread>.m:not(.first){transform-origin:100% 100%} html[dir="ltr
     transition:transform .34s cubic-bezier(.4,0,.2,1),height .34s cubic-bezier(.4,0,.2,1)}
   html.kbfix.kb .talk{transform:translate3d(0,calc(-1 * var(--kb-fix,0px)),0);transition:transform .5s cubic-bezier(.2,1.18,.32,1),height .5s cubic-bezier(.2,1,.32,1)}
   html.kbfix .composer{position:absolute!important;left:var(--comp-l,0px)!important;right:var(--comp-r,0px)!important;top:calc(100% + var(--comp-gap,6px))!important;bottom:auto!important;transform:none!important;margin:0!important}
-  html.kbfix .top,html.kbfix [data-stage]{opacity:0;pointer-events:none}   /* Zaid steps aside the moment the field is touched */
+  html.kbfix:not(.kbsink) .top,html.kbfix:not(.kbsink) [data-stage]{opacity:0;pointer-events:none}   /* Zaid steps aside the moment the field is touched, and comes back as the chat sinks */
+  html.kbsink .top,html.kbsink [data-stage]{transition:opacity .3s ease}
   /* the sheet rises the same way; while the keyboard is up it drops the live blur (re-blurring a moving sheet every
      frame stuttered on the iPhone) and uses the same colour solid */
   html.kb .sheet.on{transform:translate3d(0,calc(-1 * var(--kb-fix-sheet,0px)),0);max-height:var(--kb-maxh,92dvh);
@@ -2830,7 +2831,8 @@ function newRow(ctx){
 }
 function wireNew(ctx){
   const i = $("#ncIn"); if (!i) return;
-  requestAnimationFrame(() => i.focus({preventScroll:true}));
+  // phones: the name field waits for a tap (a scripted focus shows no keyboard there and only moved the sheet)
+  if (!(typeof PHONE !== "undefined" && PHONE.matches)) requestAnimationFrame(() => i.focus({preventScroll:true}));
   i.addEventListener("keydown", e => { if (e.isComposing) return;
     if (e.key==="Enter"){ e.preventDefault(); createCol(ctx); }
     if (e.key==="Escape"){ e.preventDefault(); e.stopPropagation(); creating=false; rerender(ctx); } });
@@ -3531,7 +3533,9 @@ const kbFreeze = () => {                                               // the ch
   // the card keeps its own size and place; the bar keeps hanging under it (outside the card's background), as on the page
   R.setProperty("--talk-l", t.left.toFixed(2) + "px"); R.setProperty("--talk-r", (innerWidth - t.right).toFixed(2) + "px");
   R.setProperty("--talk-b", (innerHeight - t.bottom).toFixed(2) + "px"); R.setProperty("--talk-h0", t.height.toFixed(2) + "px");
-  R.setProperty("--comp-gap", (c.top - t.bottom + bb).toFixed(2) + "px"); R.setProperty("--comp-space", (c.bottom - t.bottom).toFixed(2) + "px");
+  // (if the browser has already shrunk the page under the keyboard, the bar is no longer under the card: use the page's gap)
+  const gap = c.top - t.bottom >= 0 && c.top - t.bottom < 40 ? c.top - t.bottom : 6;
+  R.setProperty("--comp-gap", (gap + bb).toFixed(2) + "px"); R.setProperty("--comp-space", (gap + c.height).toFixed(2) + "px");
   R.setProperty("--comp-l", (c.left - t.left - bl).toFixed(2) + "px"); R.setProperty("--comp-r", (t.right - c.right - br).toFixed(2) + "px");
   D.classList.add("kbfix"); return true;
 };
@@ -3551,11 +3555,13 @@ const kbRise = (visBottom, vvH) => {
     R.setProperty("--kb-fix-sheet", Math.round(natural - visBottom) + "px");
   }
   R.setProperty("--kb-maxh", Math.max(160, Math.round(vvH - kbExtra() - 16)) + "px");
+  D.classList.remove("kbsink");
   if (!D.classList.contains("kb")) requestAnimationFrame(() => D.classList.add("kb"));   // next frame: the card first stands still, then rises
 };
 const kbSink = () => {
-  const D = document.documentElement; D.classList.remove("kb");
-  clearTimeout(kbOffT); kbOffT = setTimeout(() => { if (!D.classList.contains("kb")) D.classList.remove("kbfix"); }, 380);
+  const D = document.documentElement; if (!D.classList.contains("kb") && !D.classList.contains("kbfix")) return;
+  D.classList.remove("kb"); D.classList.add("kbsink");
+  clearTimeout(kbOffT); kbOffT = setTimeout(() => { if (!D.classList.contains("kb")) D.classList.remove("kbfix"); D.classList.remove("kbsink"); }, 380);
 };
 let kbTrackUntil = 0, kbTrackOn = false;
 const kbTrack = (ms) => { kbTrackUntil = Math.max(kbTrackUntil, performance.now() + ms); if (kbTrackOn) return; kbTrackOn = true;
@@ -3595,8 +3601,12 @@ const kbNoScroll = () => {
 };
 addEventListener("scroll", kbNoScroll, {passive: true});
 document.addEventListener("scroll", kbNoScroll, {passive: true, capture: true});
+let kbTapEl = null, kbTapT = 0;
+document.addEventListener("pointerdown", (e) => { kbTapEl = e.target; kbTapT = performance.now(); }, true);
 document.addEventListener("focusin", (e) => {
   if (!PHONE.matches || !e.target.matches || !e.target.matches("input,textarea")) return;
+  const tapped = kbTapEl && (kbTapEl === e.target || e.target.contains(kbTapEl) || (kbTapEl.closest && kbTapEl.closest("label,.composer") && kbTapEl.closest("label,.composer").contains(e.target))) && performance.now() - kbTapT < 800;
+  if (!tapped) return;                                                   // a scripted focus brings no keyboard: move nothing
   clearTimeout(kbOffT); if (e.target.closest(".composer")) kbFreeze();
   if (kbGuess > 0){ const vh = appH0 - kbGuess; kbRise(vh - kbExtra(), vh); }
   kbTrack(900);
