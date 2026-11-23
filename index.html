@@ -2302,25 +2302,54 @@ function msgHTML(m){
   if (m.type==="product") useP(m.pid);
   return m.type==="answer" ? f(m, answerBody(m), H, face) : f(m, H, face, productCard);
 }
+// Only the messages that changed are rebuilt (a new message is added, the typing bubble is swapped for the answer):
+// rebuilding the whole conversation made the iPhone throw the answer box back to the top for a moment (his 20:42 video)
 function renderThread(){
-  const html = S.history.map(msgHTML).join("");
+  const parts = S.history.map(msgHTML);
   $$("[data-thread]").forEach(th => {
     // only messages that are new since the last render may play their entrance animation
-    const before = +(th.dataset.seen || 0);
-    th.innerHTML = html;
-    [...th.children].forEach((c, i) => { if (i < before){ c.style.setProperty("animation","none","important"); c.classList.add("seen"); c.querySelectorAll("*").forEach(x => { if (getComputedStyle(x).animationName !== "none" && !x.matches(".dots i,.caret,.bars i,.w")) x.style.setProperty("animation","none","important"); }); } else c.classList.add("fresh"); });
+    const before = +(th.dataset.seen || 0), prev = th._parts || [], kids = th.children, st = th.scrollTop;
+    let k = 0;
+    // an answer that has just been marked finished is already showing its full text: it stays as it is
+    const same = i => prev[i] === parts[i] || (S.history[i] && S.history[i].type === "answer" && S.history[i].done && kids[i] &&
+      (kids[i].querySelector("[data-ansbody]") || {}).textContent === S.history[i].text[lang]);
+    if (kids.length === prev.length){ const n = Math.min(prev.length, parts.length); while (k < n && same(k)) k++; }
+    for (let i = kids.length - 1; i >= k; i--) kids[i].remove();
+    th.insertAdjacentHTML("beforeend", parts.slice(k).join(""));
+    th._parts = parts; th._renderT = performance.now();
+    if (k === 0 && st) th.scrollTop = st;                                // a full rebuild (language change) keeps the place
+    chatDbg("render from #" + k + " of " + parts.length);
+    [...th.children].forEach((c, i) => { if (i < k) return; if (i < before){ c.style.setProperty("animation","none","important"); c.classList.add("seen"); c.querySelectorAll("*").forEach(x => { if (getComputedStyle(x).animationName !== "none" && !x.matches(".dots i,.caret,.bars i,.w")) x.style.setProperty("animation","none","important"); }); } else c.classList.add("fresh"); });
     th.dataset.seen = th.children.length;
   });
   // a concept may place the suggested questions inside a message
   if ($("[data-thread] [data-qlist]")) renderQuestions();
   scrollThreads(false);
 }
+const CHATDBG = /[?&#]chatdebug/.test(location.search + location.hash), chatLog = [];
+function chatDbg(m){
+  if (!CHATDBG) return;
+  const th = [...document.querySelectorAll("[data-thread]")].find(x => x.offsetParent);
+  chatLog.push(Math.round(performance.now()) % 100000 + " " + m + (th ? `  st${Math.round(th.scrollTop)}/${Math.round(th.scrollHeight - th.clientHeight)} p${th.dataset.pinned || "-"}${th._user ? " U" : ""}` : ""));
+  if (chatLog.length > 14) chatLog.shift();
+  let b = document.getElementById("chatdbg"); if (!b){ b = document.createElement("div"); b.id = "chatdbg";
+    b.style.cssText = "position:fixed;left:6px;top:6px;z-index:99999;font:10.5px/1.3 monospace;background:rgba(0,0,0,.75);color:#9f9;padding:4px 6px;border-radius:6px;max-width:92vw;pointer-events:none;white-space:pre;direction:ltr"; document.body.appendChild(b); }
+  b.textContent = chatLog.join("\n");
+}
 function pinWatch(th){
   if (th._pin) return; th._pin = true; th.dataset.pinned = "1";
   const near = () => th.scrollHeight - th.scrollTop - th.clientHeight < 48 || (th._anchor && th._anchor.isConnected && Math.abs(th.scrollTop - followTop(th)) < 48);
   // the visitor's finger always wins: while they touch or flick the answers, nothing pulls them back down,
   // and once they let go they stay where they are unless they ended near the bottom
-  th.addEventListener("scroll", () => { if (th._auto && !th._user) return; th.dataset.pinned = near() ? "1" : "0"; }, {passive:true});
+  th.addEventListener("scroll", () => {
+    if (CHATDBG && Math.abs(th.scrollTop - (th._dbgSt || 0)) > 40){ th._dbgSt = th.scrollTop; chatDbg("scroll" + (th._auto ? " auto" : "")); }
+    if (th._auto && !th._user) return;
+    if (!th._user){                                                     // moved by the browser, not by a finger
+      if (th.dataset.pinned === "1" && typeof PHONE !== "undefined" && PHONE.matches && performance.now() - (th._renderT || 0) < 1500){ const g = followTop(th);
+        if (g - th.scrollTop > 2){ chatDbg("snap back " + Math.round(th.scrollTop) + "→" + Math.round(g)); th._auto = true; clearTimeout(th._autoT); th._autoT = setTimeout(() => { th._auto = false; }, 160); th.scrollTop = g; } }
+      else if (near()) th.dataset.pinned = "1";
+      return; }
+    th.dataset.pinned = near() ? "1" : "0"; }, {passive:true});
   const down = () => { th._user = true; th._auto = false; th._force = false; clearTimeout(th._userT); };
   const up = () => { clearTimeout(th._userT); th._userT = setTimeout(() => { th._user = false; if (!th._force) th.dataset.pinned = near() ? "1" : "0"; }, 450); };
   ["touchstart","pointerdown","wheel"].forEach(e => th.addEventListener(e, down, {passive:true}));
@@ -2508,7 +2537,7 @@ function alphaGL(cv, withShadow){
     use(pBlur); gl.uniform1f(U(pBlur, "sg"), Math.min(9.5, sx)); gl.uniform2f(U(pBlur, "d"), 1 / F.w, 0); bindT(pBlur, "x", 1, src.tx); drawTo(F.b, F.w, F.h);
     gl.uniform1f(U(pBlur, "sg"), Math.min(9.5, sy)); gl.uniform2f(U(pBlur, "d"), 0, 1 / F.h); bindT(pBlur, "x", 1, F.b.tx); drawTo(dst, F.w, F.h);
   };
-  return video => {
+  const paintFn = video => {
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video);
     const VH = video.videoHeight || video.height;   // a playing clip, or the still packed like one (a canvas)
@@ -2532,6 +2561,12 @@ function alphaGL(cv, withShadow){
       gl.uniform2f(U(pMain, "o1"), 16 / W, 10 / Hc); gl.uniform2f(U(pMain, "o2"), 4 / W, 4 / Hc); }
     drawTo(null, cv.width, cv.height);
   };
+  // does the canvas really show him? (read straight after a draw: a lost context or an empty video picture reads as clear)
+  paintFn.seen = () => { try{ if (gl.isContextLost()) return false; const px = new Uint8Array(4);
+      for (const [x, y] of [[.5,.55],[.5,.38],[.44,.75]]){ gl.readPixels(Math.round(cv.width * x), Math.round(cv.height * (1 - y)), 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px); if (px[3] > 0) return true; }
+      return false; }catch(e){ return true; } };
+  paintFn.lost = () => { try{ return gl.isContextLost(); }catch(e){ return false; } };
+  return paintFn;
 }
 /* A clip can be wider than the still (room for open hands): the canvas keeps the still's height and grows sideways
    around its centre, so Zaid stays the same size and in the same place. The light-from-the-left shading is
@@ -2566,9 +2601,24 @@ const NV = (() => {
   const av = $("#avatar"); if (!video || !av) return null;
   const cv = document.createElement("canvas"); cv.className = "nasser-canvas"; cv.width = 900; cv.height = 953; cv.setAttribute("aria-hidden","true");
   video.insertAdjacentElement("afterend", cv);
-  const paint = alphaGL(cv, true); if (!paint) return null;
+  let paint = alphaGL(cv, true); if (!paint) return null;
 
   let raf = 0;
+  /* Safety net: the phone can take the WebGL picture away (iPhone does this to a page coming back from the background,
+     or under memory pressure), or a clip's picture can arrive empty. The canvas would then stay clear while the voice
+     plays. In that case the still portrait stays on screen (he is never missing), and the picture is rebuilt as soon as
+     the browser gives the context back. Checked once at the start of every clip and on every still. */
+  const NVDBG = /[?&#]nvdebug/.test(location.search + location.hash);
+  let broken = false, checked = false;
+  const note = m => { if (NVDBG){ let b = document.getElementById("nvdbg"); if (!b){ b = document.createElement("div"); b.id = "nvdbg";
+      b.style.cssText = "position:fixed;left:6px;bottom:6px;z-index:99999;font:11px/1.3 monospace;background:rgba(0,0,0,.7);color:#9f9;padding:4px 6px;border-radius:6px;max-width:70vw;pointer-events:none;white-space:pre"; document.body.appendChild(b); }
+      b.textContent = (b.textContent + "\n" + Math.round(performance.now()) + " " + m).split("\n").slice(-6).join("\n").trim(); } };
+  const fallback = why => { if (broken) return; broken = true; cancelAnimationFrame(raf); note("still shown: " + why);
+    av.classList.add("nv-stacked", "nv-instant"); av.classList.remove("nv-on", "nv-out");
+    requestAnimationFrame(() => requestAnimationFrame(() => av.classList.remove("nv-instant"))); };
+  cv.addEventListener("webglcontextlost", e => { e.preventDefault(); fallback("context lost"); }, false);
+  cv.addEventListener("webglcontextrestored", () => { const p2 = alphaGL(cv, true); if (!p2) return; paint = p2; broken = false; checked = false; note("context restored");
+    if (!video.paused && !video.ended && video.classList.contains("live")) raf = requestAnimationFrame(draw); else showStill(); }, false);
   const stacked = () => video.videoHeight > video.videoWidth * 1.6;
   /* The still is drawn by this same canvas, packed like a clip (colour on top, cut-out below), so the still and every
      clip share one picture, one light and one shadow. A clip begins and ends on the still's exact picture, so going
@@ -2591,19 +2641,30 @@ const NV = (() => {
   };
   const showStill = () => {
     if (!buildStill()) return false;
+    if (broken){ if (paint.lost()) return true; broken = false; }          // context is fine again: try the canvas once more
     fitClip(cv, still); paint(still);
+    if (!paint.seen()){ fallback(paint.lost() ? "context lost" : "still not drawn"); return true; }
     av.classList.add("nv-stacked", "nv-on"); av.classList.remove("nv-out");
     return true;
   };
   const draw = () => {
+    if (broken) return;
     if (video.readyState >= 2){
       fitClip(cv, video);
       paint(video);
+      // first moving picture of a clip: make sure it really is on the canvas before the still steps aside (.3 s later)
+      if (!checked && video.currentTime > 0.04){ checked = true; if (!paint.seen()){ fallback(paint.lost() ? "context lost" : "clip picture empty"); return; } note("clip drawn ok"); }
       av.classList.add("nv-on");
     }
     if (!video.paused && !video.ended) raf = requestAnimationFrame(draw);
   };
-  video.addEventListener("playing", () => { if (priming || !stacked()) return; av.classList.add("nv-stacked"); av.classList.remove("nv-out"); cancelAnimationFrame(raf); raf = requestAnimationFrame(draw); });
+  video.addEventListener("playing", () => { if (priming || !stacked()) return; av.classList.add("nv-stacked");
+    if (broken && !paint.lost()) broken = false;                          // every clip gets a fresh chance on the canvas
+    if (broken) return; checked = false; av.classList.remove("nv-out"); cancelAnimationFrame(raf); raf = requestAnimationFrame(draw); });
+  // back from the background / from the back-forward cache: look at the picture again
+  const recheck = () => { if (document.hidden) return; if (paint.lost()){ fallback("context lost (resume)"); return; }
+    if (video.paused || video.ended) showStill(); };
+  document.addEventListener("visibilitychange", recheck); addEventListener("pageshow", e => { note("pageshow" + (e.persisted ? " (restored)" : "")); recheck(); });
   video.addEventListener("seeked", () => { if (!priming && stacked() && video.paused && video.classList.contains("live")) draw(); });
   const hide = () => {
     cancelAnimationFrame(raf);
@@ -2728,17 +2789,24 @@ function stopListening(){ if (rec){ try{ rec.stop(); }catch(e){} } if (S.listeni
 function micDemo(){
   micTimer = setTimeout(() => { S.listening=false; renderControls(); push({type:"plain", text:{ar:T.ar.micReply,en:T.en.micReply}}); }, 3000);
 }
-let micRetried=false, arLang="ar-QA";
 const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+// iPhone: speech recognition only starts inside the tap itself; a retry from a timer is refused (service-not-allowed),
+// so it starts straight away with Saudi Arabic, the Arabic iPhone dictation carries; a language that worked is remembered
+const MICDBG = /[?&#]micdebug/.test(location.search + location.hash);
+let micRetried=false, arLang = (() => { try{ const v = localStorage.getItem("ihsan-arlang"); if (v) return v; }catch(e){} return isIOS ? "ar-SA" : "ar-QA"; })();
+const micDbg = (m) => { if (MICDBG) push({type:"plain", text:{ar:"mic: " + m, en:"mic: " + m}}); };
 // iPhone voice help, with the Settings names in the phone's own language (an English iPhone gets the English names)
 function siriHelp(){
   const devAr = /^ar/i.test(navigator.language || "");
+  if (/CriOS|FxiOS|EdgiOS/.test(navigator.userAgent)) return {
+    ar:"التعرّف على الصوت على الآيفون يعمل في Safari. افتح الرابط في Safari واضغط على الميكروفون، أو اكتب سؤالك هنا.",
+    en:"On iPhone, voice recognition works in Safari. Open this link in Safari and tap the mic, or type your question here."};
   const ar = devAr
-    ? "لتفعيل الصوت على الآيفون: الإعدادات ← عام ← لوحة المفاتيح، وفعّل «تمكين الإملاء». ولأني أسمعك بالعربية، أضف لوحة المفاتيح العربية من «لوحات المفاتيح» ← «إضافة لوحة مفاتيح جديدة» ← العربية، ثم أعد المحاولة."
-    : "لتفعيل الصوت على الآيفون افتح \u2066Settings\u00a0→ General\u00a0→ Keyboard\u2069 وفعّل \u2066Enable Dictation\u2069. ولأني أسمعك بالعربية، أضف لوحة مفاتيح عربية من \u2066Keyboards\u00a0→ Add\u00a0New\u00a0Keyboard\u00a0→ Arabic\u2069، ثم أعد المحاولة.";
+    ? "لتفعيل الصوت على الآيفون: فعّل Siri من الإعدادات ← Siri، وفعّل «تمكين الإملاء» من الإعدادات ← عام ← لوحة المفاتيح، وتأكد أن لوحة المفاتيح العربية مضافة. ثم اضغط على الميكروفون مرة أخرى."
+    : "لتفعيل الصوت على الآيفون: فعّل \u2066Siri\u2069 من \u2066Settings\u00a0→ Siri\u2069، وفعّل \u2066Enable Dictation\u2069 من \u2066Settings\u00a0→ General\u00a0→ Keyboard\u2069، وتأكد أن لوحة المفاتيح العربية مضافة. ثم اضغط على الميكروفون مرة أخرى.";
   const en = devAr
-    ? "To use voice on iPhone: \u2067الإعدادات ← عام ← لوحة المفاتيح\u2069 and turn on \u2067«تمكين الإملاء»\u2069, then try again."
-    : "To use voice on iPhone: Settings › General › Keyboard › turn on Enable Dictation, then try again.";
+    ? "To use voice on iPhone: turn on Siri (\u2067الإعدادات ← Siri\u2069) and \u2067«تمكين الإملاء»\u2069 (\u2067الإعدادات ← عام ← لوحة المفاتيح\u2069), then tap the mic again."
+    : "To use voice on iPhone: turn on Siri (Settings › Siri) and Enable Dictation (Settings › General › Keyboard), then tap the mic again.";
   return {ar, en};
 }
 async function micDiagnose(code){
@@ -2750,6 +2818,7 @@ async function micDiagnose(code){
     st.getTracks().forEach(t => t.stop());
     // mic access is fine: the speech service itself was refused
     if (code === "service-not-allowed" || code === "language-not-supported" || micRetried){ if (isIOS) push({type:"plain", text:siriHelp()}); else say("micService"); return; }
+    if (isIOS){ push({type:"plain", text:siriHelp()}); return; }     // iPhone refuses a start outside the tap: explain instead
     micRetried = true; setTimeout(toggleMic, 250);          // permission just granted: try again once
   }catch(err){ say(inFrame ? "micFrame" : "micDenied"); }
 }
@@ -2760,23 +2829,30 @@ function toggleMic(){
   rec = new SR(); recGot = false;
   rec.lang = lang === "ar" ? arLang : "en-US";
   rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
-  const inp = micInput();
+  const inp = micInput(); let heard = "";
+  const sendHeard = (v) => { recGot = true; micRetried = false; try{ localStorage.setItem("ihsan-arlang", arLang); }catch(e){}
+    if (inp){ inp.value=""; inp.dispatchEvent(new Event("input",{bubbles:true})); } S.listening=false; renderControls(); try{ rec && rec.stop(); }catch(e){} typed(v); };
+  micDbg("start " + rec.lang + (isIOS ? " iOS" : "") + " " + (/CriOS|FxiOS|EdgiOS/.test(navigator.userAgent) ? "in-app-browser" : "browser"));
   rec.onresult = e => {
     let txt = ""; let fin = false;
     for (let k = e.resultIndex; k < e.results.length; k++){ txt += e.results[k][0].transcript; if (e.results[k].isFinal) fin = true; }
-    if (inp){ inp.value = txt; inp.dispatchEvent(new Event("input",{bubbles:true})); }
-    if (fin && txt.trim()){ recGot = true; micRetried = false; const v = txt.trim(); if (inp){ inp.value=""; inp.dispatchEvent(new Event("input",{bubbles:true})); } S.listening=false; renderControls(); try{ rec.stop(); }catch(e){} typed(v); }
+    heard = txt; if (inp){ inp.value = txt; inp.dispatchEvent(new Event("input",{bubbles:true})); }
+    if (fin && txt.trim() && !recGot) sendHeard(txt.trim());
   };
   rec.onerror = e => {
+    micDbg("error " + e.error + " (" + rec.lang + ")");
+    if (recGot) return;
     recGot = true; S.listening=false; renderControls();
     if (e.error === "no-speech"){ push({type:"plain", text:{ar:T.ar.micNone,en:T.en.micNone}}); return; }
     if (e.error === "aborted") return;
     // some phones only carry Saudi Arabic for dictation: try that once before asking the visitor to change settings
-    if ((e.error === "service-not-allowed" || e.error === "language-not-supported") && lang === "ar" && arLang === "ar-QA"){ arLang = "ar-SA"; setTimeout(toggleMic, 200); return; }
+    if ((e.error === "service-not-allowed" || e.error === "language-not-supported") && lang === "ar" && arLang === "ar-QA"){ arLang = "ar-SA"; if (!isIOS){ setTimeout(toggleMic, 200); return; } }
     if (e.error === "not-allowed" || e.error === "service-not-allowed" || e.error === "audio-capture" || e.error === "language-not-supported") micDiagnose(e.error);
     else if (e.error === "network") push({type:"plain", text:{ar:T.ar.micNet,en:T.en.micNet}});
   };
-  rec.onend = () => { rec = null; if (S.listening){ S.listening=false; renderControls(); } if (!recGot) push({type:"plain", text:{ar:T.ar.micNone,en:T.en.micNone}}); };
+  // iPhone may end without ever marking the words final: what was heard is sent anyway
+  rec.onend = () => { micDbg("end, heard «" + heard + "»"); if (!recGot && heard.trim()){ sendHeard(heard.trim()); rec = null; return; }
+    rec = null; if (S.listening){ S.listening=false; renderControls(); } if (!recGot) push({type:"plain", text:{ar:T.ar.micNone,en:T.en.micNone}}); };
   try{ rec.start(); }catch(e){ rec=null; micDemo(); }
 }
 
@@ -3474,7 +3550,7 @@ document.addEventListener("click", e => {
     case "lang": lang = lang==="ar" ? "en" : "ar"; applyLang(); break;
     case "tour": case "tourAgain": startTour(); break;
     case "tourPick": tourPick(a.dataset.step, a.dataset.v); break;
-    case "tourStop": if (a.dataset.pid) openSheet("details"); else toast(a.dataset.info || t("tourDemo")); break;
+    case "tourStop": if (a.dataset.pid) openSheet("details"); break;   // only the lamp and the tile have their page for now; the others just press (no bar)
     case "where": wFresh(); wOrigin(a); openWhere(null); break;
     case "wzone": if (!curHere()) wSetHere(a.dataset.z); else if (a.dataset.z !== WH.here) WH.to = a.dataset.z; renderWhere(); break;
     case "wnear": wSetHere(a.dataset.z); WH.jump = true; renderWhere(); break;
@@ -3509,7 +3585,7 @@ document.addEventListener("visibilitychange", () => { if (document.hidden) stopS
 function reset(){
   closeSheet(true); clearTimeout(thinkT); stopSpeaking(); stopListening();
   S.cols=[{id:"fav", name:"", items:[]}]; saveCols(); syncSaved(); refreshAddButtons(); S.activeQ=-1; setBadge(false);
-  $$("[data-thread]").forEach(th => th.dataset.seen = 0);
+  $$("[data-thread]").forEach(th => { th.dataset.seen = 0; th._parts = null; });   // a fresh start rebuilds everything
   S.history=[{type:"welcome"}]; renderQuestions(); renderControls(); renderThread();
   document.dispatchEvent(new CustomEvent("ihsan:reset"));
 }
